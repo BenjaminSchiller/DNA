@@ -139,13 +139,15 @@ public class LabelVisualizer extends Visualizer {
 			public void mouseMoved(MouseEvent e) {
 				if (chart.getPointFinder().getNearestPoint(e, chart) != null) {
 					ITracePoint2D tempPointFinder = chart.getPointFinder().getNearestPoint(e, chart);
-					menuBar.updateCoordsPanel((int) Math.floor(tempPointFinder.getX()), tempPointFinder.getY());
+					menuBar.updateCoordsPanel(tempPointFinder.getX(), tempPointFinder.getY());
 				}
 			}
 
 			public void mouseDragged(MouseEvent e) {
 			}
 		});
+
+		this.menuBar.setYCoordsLabelText("v:");
 
 		// apply config
 		// this.chart.setPreferredSize(config.getChartSize());
@@ -549,5 +551,24 @@ public class LabelVisualizer extends Visualizer {
 				trace.setVisible(true);
 		}
 		this.chart.setRequestedRepaint(true);
+	}
+
+	/** Returns the value at the given y-location. **/
+	public String getValue(double x, double y) {
+		String value = "unknown";
+		int yFloored = (int) Math.floor(y);
+		for (String key : this.labelTraces.keySet()) {
+			LabelTrace label = this.labelTraces.get(key);
+			if (yFloored == label.getYMapping()) {
+				value = label.getValue(x);
+				break;
+			}
+		}
+		return value;
+	}
+
+	/** Updates the according legend item. **/
+	public void updateItem(String name, String value) {
+		this.legend.updateItem(name, value);
 	}
 }

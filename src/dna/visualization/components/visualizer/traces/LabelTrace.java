@@ -26,7 +26,7 @@ public class LabelTrace {
 	protected Chart2D chart;
 	protected String key;
 
-	protected int yMapping;
+	protected int y;
 
 	protected boolean visible;
 	protected int size;
@@ -38,13 +38,14 @@ public class LabelTrace {
 	protected boolean active;
 	protected HashMap<Double, ITrace2D> currentTraces;
 	protected ArrayList<ITrace2D> removedTraces;
+	protected HashMap<Double, String> values;
 
-	public LabelTrace(LabelVisualizer parent, Chart2D chart, String key, int yMapping, int size, Color color,
+	public LabelTrace(LabelVisualizer parent, Chart2D chart, String key, int y, int size, Color color,
 			double initTimestamp) {
 		this.parent = parent;
 		this.chart = chart;
 		this.key = key;
-		this.yMapping = yMapping;
+		this.y = y;
 		this.size = size;
 		this.color = color;
 		this.visible = true;
@@ -55,6 +56,7 @@ public class LabelTrace {
 		this.active = false;
 		this.currentTraces = new HashMap<Double, ITrace2D>();
 		this.removedTraces = new ArrayList<ITrace2D>();
+		this.values = new HashMap<Double, String>();
 	}
 
 	/**
@@ -65,10 +67,12 @@ public class LabelTrace {
 		// System.out.println("adding from : " + this.lastTimestamp + " --> " +
 		// timestamp);
 		if (label != null) {
+			String value = label.getValue();
 			if (active) {
 				// add points to all traces
 				for (double y : this.currentTraces.keySet()) {
 					this.currentTraces.get(y).addPoint(timestamp, y);
+					this.addValue(timestamp, value);
 				}
 			} else {
 				// init new traces and add points from last-timestamp to next
@@ -102,7 +106,7 @@ public class LabelTrace {
 				// this.currentTraces.put(y, newTrace);
 				// }
 
-				double y = this.yMapping;
+				double y = this.y;
 
 				Trace2DLtd newTrace = new Trace2DLtd(this.parent.getTraceLength());
 				newTrace.setColor(this.color);
@@ -111,13 +115,17 @@ public class LabelTrace {
 				newTrace.addTracePainter(new TracePainterLine());
 
 				// add point t-1
-				if (this.lastTimestamp == timestamp)
+				if (this.lastTimestamp == timestamp) {
 					newTrace.addPoint(timestamp - 1, y);
-				else
+					this.addValue(timestamp - 1, value);
+				} else {
 					newTrace.addPoint(lastTimestamp, y);
+					this.addValue(lastTimestamp, value);
+				}
 
 				// add point t
 				newTrace.addPoint(timestamp, y);
+				this.addValue(timestamp, value);
 
 				// add trace to current traces
 				this.currentTraces.put(y, newTrace);
@@ -134,10 +142,19 @@ public class LabelTrace {
 				// mark as inactive
 				this.active = false;
 			}
+
+			this.parent.updateItem(this.key, " -");
 		}
 
 		// update last timestamp to this one
 		this.lastTimestamp = timestamp;
+	}
+
+	/** Adds a label-value to the internal hashmap. **/
+	protected void addValue(double y, String value) {
+		this.values.put(y, value);
+		this.parent.updateItem(this.key, value);
+		// this.legend.updateItem(name, l.getValue());
 	}
 
 	/** Clears all traces associated with this object. **/
@@ -149,6 +166,7 @@ public class LabelTrace {
 			this.chart.removeTrace(trace);
 		}
 		this.removedTraces.clear();
+		this.values.clear();
 	}
 
 	/** Moves all current traces to the removed traces. **/
@@ -166,7 +184,7 @@ public class LabelTrace {
 
 	/** Returns the traces y-mapping. **/
 	public int getYMapping() {
-		return this.yMapping;
+		return this.y;
 	}
 
 	/** Sets a new size and updates all traces. **/
@@ -202,4 +220,13 @@ public class LabelTrace {
 		this.visible = visible;
 	}
 
+	/** Returns the value for the given timestamp (x-coordinate). **/
+	public String getValue(double timestamp) {
+		String value = this.values.get(timestamp);
+		if (value == null)
+			return "null";
+		else
+			return value;
+
+	}
 }

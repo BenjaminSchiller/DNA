@@ -1,10 +1,6 @@
 package dna.visualization.components.visualizer;
 
 import java.awt.Color;
-import java.awt.ComponentOrientation;
-import java.awt.FlowLayout;
-
-import javax.swing.JPanel;
 
 /**
  * A legenditem in the legendlist representing a labeler and type pair.
@@ -28,7 +24,7 @@ public class LegendItemLabel extends LegendItem {
 	}
 
 	/** sets the value of an item **/
-	public void setValue(double value) {
+	public void setValue(String value) {
 		this.valueLabel.setText("V=" + value);
 		this.valueLabel.setToolTipText("V=" + value);
 	}
