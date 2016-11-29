@@ -241,6 +241,12 @@ public class MenuBar extends JPanel implements ChangeListener {
 							maxTemp = ((Trace2DLtd) t).getMaxX();
 						}
 					}
+
+					if (parent instanceof LabelVisualizer) {
+						minTemp = ((LabelVisualizer) parent).getMinTimestamp();
+						maxTemp = ((LabelVisualizer) parent).getMaxTimestamp();
+					}
+
 					int minTimestampNew = (int) Math.floor(minTemp) + (int) Math.floor(lowP * (maxTemp - minTemp));
 					int maxTimestampNew = (int) Math.floor(minTemp) + (int) Math.floor(highP * (maxTemp - minTemp));
 					parent.setMinShownTimestamp((long) minTimestampNew);

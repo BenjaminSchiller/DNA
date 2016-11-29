@@ -6,6 +6,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 
 import dna.labels.Label;
+import dna.visualization.components.visualizer.CircularArrayList;
 import dna.visualization.components.visualizer.LabelVisualizer;
 import info.monitorenter.gui.chart.Chart2D;
 import info.monitorenter.gui.chart.ITrace2D;
@@ -28,6 +29,9 @@ public class LabelTrace {
 
 	protected int y;
 
+	protected double minX;
+	protected double maxX;
+
 	protected boolean visible;
 	protected int size;
 	protected Color color;
@@ -39,6 +43,8 @@ public class LabelTrace {
 	protected HashMap<Double, ITrace2D> currentTraces;
 	protected ArrayList<ITrace2D> removedTraces;
 	protected HashMap<Double, String> values;
+
+	protected CircularArrayList<Double> timestampBuffer;
 
 	public LabelTrace(LabelVisualizer parent, Chart2D chart, String key, int y, int size, Color color,
 			double initTimestamp) {
@@ -53,10 +59,14 @@ public class LabelTrace {
 		this.initTimestamp = initTimestamp;
 		this.lastTimestamp = initTimestamp;
 
+		this.minX = initTimestamp;
+		this.maxX = initTimestamp;
+
 		this.active = false;
 		this.currentTraces = new HashMap<Double, ITrace2D>();
 		this.removedTraces = new ArrayList<ITrace2D>();
 		this.values = new HashMap<Double, String>();
+		this.timestampBuffer = new CircularArrayList<Double>(this.parent.getTraceLength());
 	}
 
 	/**
@@ -64,8 +74,11 @@ public class LabelTrace {
 	 * the batch the handed over Label-object should be null.
 	 **/
 	public void update(double timestamp, Label label) {
-		// System.out.println("adding from : " + this.lastTimestamp + " --> " +
-		// timestamp);
+		this.timestampBuffer.addSilent(timestamp);
+
+		// maybe remove old traces
+		handleRemovedTraces();
+
 		if (label != null) {
 			String value = label.getValue();
 			if (active) {
@@ -75,37 +88,6 @@ public class LabelTrace {
 					this.addValue(timestamp, value);
 				}
 			} else {
-				// init new traces and add points from last-timestamp to next
-				// double start = this.yMapping + this.padding;
-				// double middle = this.yMapping;
-				// double steps = this.steps; // number of traces per
-				// label-trace
-				// int halfSteps = (int) Math.floor(steps / 2);
-				//
-				// double range = start - middle;
-				// double stepSize = range / halfSteps;
-				//
-				// // for each step init own trace
-				// for (int i = 0; i < steps; i++) {
-				// double y = start - (stepSize * i);
-				//
-				// Trace2DLtd newTrace = new
-				// Trace2DLtd(this.parent.getTraceLength());
-				// newTrace.setColor(this.color);
-				//
-				// BasicStroke stroke = new BasicStroke(this.size);
-				// stroke = new BasicStroke(50, BasicStroke.CAP_BUTT,
-				// BasicStroke.JOIN_BEVEL);
-				//
-				// newTrace.setStroke(stroke);
-				// this.chart.addTrace(newTrace);
-				// newTrace.addTracePainter(new TracePainterLine());
-				// newTrace.addPoint(this.lastTimestamp, y);
-				// newTrace.addPoint(timestamp, y);
-				//
-				// this.currentTraces.put(y, newTrace);
-				// }
-
 				double y = this.y;
 
 				Trace2DLtd newTrace = new Trace2DLtd(this.parent.getTraceLength());
@@ -150,11 +132,30 @@ public class LabelTrace {
 		this.lastTimestamp = timestamp;
 	}
 
+	/** Handles removed traces. **/
+	protected void handleRemovedTraces() {
+		double minX = this.getMinX();
+
+		ArrayList<ITrace2D> toBeTrashed = new ArrayList<ITrace2D>();
+
+		for (ITrace2D trace : this.removedTraces) {
+			if (trace.getMaxX() >= minX)
+				break;
+			else
+				toBeTrashed.add(trace);
+		}
+
+		for (ITrace2D trace : toBeTrashed) {
+			this.removedTraces.remove(trace);
+			this.chart.removeTrace(trace);
+			trace.removeAllPoints();
+		}
+	}
+
 	/** Adds a label-value to the internal hashmap. **/
 	protected void addValue(double y, String value) {
 		this.values.put(y, value);
 		this.parent.updateItem(this.key, value);
-		// this.legend.updateItem(name, l.getValue());
 	}
 
 	/** Clears all traces associated with this object. **/
@@ -167,6 +168,8 @@ public class LabelTrace {
 		}
 		this.removedTraces.clear();
 		this.values.clear();
+		this.minX = this.initTimestamp;
+		this.maxX = this.initTimestamp;
 	}
 
 	/** Moves all current traces to the removed traces. **/
@@ -227,6 +230,22 @@ public class LabelTrace {
 			return "null";
 		else
 			return value;
-
 	}
+
+	// public double getMinX() {
+	// return this.minX;
+	// }
+	//
+	// public double getMaxX() {
+	// return this.maxX;
+	// }
+
+	public double getMinX() {
+		return this.timestampBuffer.getHead();
+	}
+
+	public double getMaxX() {
+		return this.timestampBuffer.getTail();
+	}
+
 }
