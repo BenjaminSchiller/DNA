@@ -75,6 +75,7 @@ public class LabelVisualizer extends Visualizer {
 		// super(config.getChartSize(), config.getLegendSize());
 		super(new Dimension(450, 320), new Dimension(190, 330));
 
+		this.x1Connected = true;
 		this.mainDisplay = mainDisplay;
 		this.labelTraces = new HashMap<String, LabelTrace>();
 		this.mapping = new HashMap<String, Integer>();
@@ -628,4 +629,17 @@ public class LabelVisualizer extends Visualizer {
 	public void updateItem(String name, String value) {
 		this.legend.updateItem(name, value);
 	}
+
+	@Override
+	public void broadcastX1IntervalSizeSliderChange(int value) {
+		if (this.isX1Connected())
+			this.mainDisplay.broadcastX1SizeSliderChange(this, value);
+	}
+
+	@Override
+	public void broadcastX1IntervalScrollBarChange(int value) {
+		if (this.isX1Connected())
+			this.mainDisplay.broadcastX1IntervalScrollBarChange(this, value);
+	}
+
 }
