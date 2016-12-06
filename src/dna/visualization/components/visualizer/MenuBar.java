@@ -833,7 +833,6 @@ public class MenuBar extends JPanel implements ChangeListener {
 
 	/** Set x1 interval enabled. **/
 	public void setX1IntervalEnabled(boolean enabled) {
-		System.out.println("setting enabled!");
 		if (this.x1ShowAllCheckBox != null) {
 			if (this.x1ShowAllCheckBox.isSelected()) {
 				if (!enabled)
