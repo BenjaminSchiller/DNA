@@ -52,8 +52,7 @@ import dna.visualization.config.components.MultiScalarVisualizerConfig;
 public class MainDisplay extends JFrame {
 
 	/** MAIN **/
-	public static void main(String[] args) throws URISyntaxException,
-			IOException {
+	public static void main(String[] args) throws URISyntaxException, IOException {
 		Log.infoSep();
 
 		// check cmd line parameters
@@ -118,42 +117,27 @@ public class MainDisplay extends JFrame {
 
 		if (helpFlag) {
 			System.out.println("DNA - Dynamic Network Analyzer");
-			System.out
-					.println("Run the program with the following command line parameters to change the GUI's behaviour:");
+			System.out.println(
+					"Run the program with the following command line parameters to change the GUI's behaviour:");
 			System.out.println("Parameter" + "\t\t" + "Function");
-			System.out.println("-c <config-path>" + "\t"
-					+ "Uses the specified file as main display configuration");
-			System.out.println("-c <config-path>" + "\t"
-					+ "Uses the specified file as main display configuration");
-			System.out
-					.println("\t\t\t"
-							+ "Note: It will first check the path on the actual filesystem");
-			System.out
-					.println("\t\t\t"
-							+ "then inside the jar. If it is not present, it will use the default-cfg,");
-			System.out
-					.println("\t\t\t"
-							+ "again first the one from the filesystem, then from the jar.");
-			System.out.println("-d <data-dir>" + "\t\t"
-					+ "Specifies the data-dir as default dir");
+			System.out.println("-c <config-path>" + "\t" + "Uses the specified file as main display configuration");
+			System.out.println("-c <config-path>" + "\t" + "Uses the specified file as main display configuration");
+			System.out.println("\t\t\t" + "Note: It will first check the path on the actual filesystem");
+			System.out.println("\t\t\t" + "then inside the jar. If it is not present, it will use the default-cfg,");
+			System.out.println("\t\t\t" + "again first the one from the filesystem, then from the jar.");
+			System.out.println("-d <data-dir>" + "\t\t" + "Specifies the data-dir as default dir");
 			System.out.println("-h" + "\t\t\t" + "Displays this help message");
-			System.out.println("-l" + "\t\t\t"
-					+ "Runs the GUI in live display mode");
-			System.out.println("-p" + "\t\t\t"
-					+ "Runs the GUI in playback mode");
-			System.out.println("-z" + "\t\t\t"
-					+ "Enables zipped batches support");
-			System.out
-					.println("-zr" + "\t\t\t" + "Enables zipped runs support");
+			System.out.println("-l" + "\t\t\t" + "Runs the GUI in live display mode");
+			System.out.println("-p" + "\t\t\t" + "Runs the GUI in playback mode");
+			System.out.println("-z" + "\t\t\t" + "Enables zipped batches support");
+			System.out.println("-zr" + "\t\t\t" + "Enables zipped runs support");
 
-			System.out.println("Example: run vis.jar -c " + '"'
-					+ "config/my_guy.cfg" + '"' + " -d " + '"'
+			System.out.println("Example: run vis.jar -c " + '"' + "config/my_guy.cfg" + '"' + " -d " + '"'
 					+ "data/scenario1337/run.42/" + '"' + " -l -z");
 		} else {
 			MainDisplayConfig customConfig = MainDisplay.DefaultConfig;
 			if (configFlag) {
-				MainDisplayConfig tempConfig = MainDisplayConfig
-						.readConfig(configPath);
+				MainDisplayConfig tempConfig = MainDisplayConfig.readConfig(configPath);
 				if (tempConfig != null)
 					customConfig = tempConfig;
 			}
@@ -192,8 +176,7 @@ public class MainDisplay extends JFrame {
 			MainDisplay display = new MainDisplay(liveFlag, zipMode, config);
 
 			if (config.isFullscreen()) {
-				display.setExtendedState(display.getExtendedState()
-						| JFrame.MAXIMIZED_BOTH);
+				display.setExtendedState(display.getExtendedState() | JFrame.MAXIMIZED_BOTH);
 			}
 			display.setVisible(true);
 
@@ -233,8 +216,7 @@ public class MainDisplay extends JFrame {
 	// config
 	public static boolean runFromJar = IOUtils.isRunFromJar();
 	public static MainDisplayConfig config;
-	public static MainDisplayConfig DefaultConfig = MainDisplayConfig
-			.getDefaultConfig();
+	public static MainDisplayConfig DefaultConfig = MainDisplayConfig.getDefaultConfig();
 
 	// static paths
 	public static final String defaultConfigPath = "config/gui_default.cfg";
@@ -267,8 +249,7 @@ public class MainDisplay extends JFrame {
 		this(liveDisplay, zipMode, MainDisplayConfig.readConfig(configPath));
 	}
 
-	public MainDisplay(boolean liveDisplay, ZipMode zipMode,
-			MainDisplayConfig config) {
+	public MainDisplay(boolean liveDisplay, ZipMode zipMode, MainDisplayConfig config) {
 		MainDisplay.config = config;
 
 		// init
@@ -372,9 +353,7 @@ public class MainDisplay extends JFrame {
 						batchHandler.start();
 						startLogDisplays();
 					} else {
-						Log.info("Dir '"
-								+ f.getPath()
-								+ "' not present, try again with existing directory.");
+						Log.info("Dir '" + f.getPath() + "' not present, try again with existing directory.");
 					}
 				}
 			}
@@ -405,10 +384,9 @@ public class MainDisplay extends JFrame {
 
 		// create lock checkbox and add to buttons panel
 		this.mainLock = new JCheckBox("Lock");
-		this.mainLock
-				.setToolTipText("Locks all visualizers, which means their legends wont be altered during reset / directory change.");
-		this.mainLock.setFont(new Font(this.getDefaultFont().getName(),
-				Font.BOLD, this.getDefaultFont().getSize()));
+		this.mainLock.setToolTipText(
+				"Locks all visualizers, which means their legends wont be altered during reset / directory change.");
+		this.mainLock.setFont(new Font(this.getDefaultFont().getName(), Font.BOLD, this.getDefaultFont().getSize()));
 		this.mainLock.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent arg0) {
@@ -427,8 +405,7 @@ public class MainDisplay extends JFrame {
 		/*
 		 * Create StatsDisplay
 		 */
-		this.statsDisplay = new StatsDisplay(this,
-				config.getStatsDisplayConfig(), liveDisplay);
+		this.statsDisplay = new StatsDisplay(this, config.getStatsDisplayConfig(), liveDisplay);
 		this.statsDisplay.setLocation(0, 0);
 		this.statsDisplay.setDirectory(config.getDefaultDir());
 
@@ -443,16 +420,14 @@ public class MainDisplay extends JFrame {
 		 * Init LogoPanel, set position and add to leftSidePanel
 		 */
 		this.logoPanel = new JPanel();
-		this.logoPanel
-				.setLayout(new BoxLayout(this.logoPanel, BoxLayout.X_AXIS));
+		this.logoPanel.setLayout(new BoxLayout(this.logoPanel, BoxLayout.X_AXIS));
 
 		BufferedImage image = null;
 		JarFile x = null;
 		InputStream is = null;
 		try {
 			if (runFromJar) {
-				Path pPath = Paths.get(Config.class.getProtectionDomain()
-						.getCodeSource().getLocation().toURI());
+				Path pPath = Paths.get(Config.class.getProtectionDomain().getCodeSource().getLocation().toURI());
 				String[] splits = config.getLogoDir().split("/");
 				x = new JarFile(pPath.toFile(), false);
 				is = x.getInputStream(x.getEntry(splits[splits.length - 1]));
@@ -465,17 +440,14 @@ public class MainDisplay extends JFrame {
 		}
 
 		// rescale image
-		Image newimg = image.getScaledInstance(
-				(int) Math.floor(config.getLogoSize().getWidth()),
-				(int) Math.floor(config.getLogoSize().getHeight()),
-				java.awt.Image.SCALE_SMOOTH);
+		Image newimg = image.getScaledInstance((int) Math.floor(config.getLogoSize().getWidth()),
+				(int) Math.floor(config.getLogoSize().getHeight()), java.awt.Image.SCALE_SMOOTH);
 
 		JLabel logoLabel = new JLabel(new ImageIcon(newimg));
 		this.logoPanel.setLayout(new GridBagLayout());
 		// this.logoPanel.setPreferredSize(config.getLogoSize());
 		this.logoPanel.add(logoLabel);
-		this.logoPanel.setBorder(BorderFactory
-				.createEtchedBorder((EtchedBorder.LOWERED)));
+		this.logoPanel.setBorder(BorderFactory.createEtchedBorder((EtchedBorder.LOWERED)));
 
 		// free resources
 		try {
@@ -507,13 +479,10 @@ public class MainDisplay extends JFrame {
 		int maxYPosition = 0;
 		// FILL PANEL
 		// add metric visualizer
-		for (MetricVisualizerConfig metVisConfig : config
-				.getMetricVisualizerConfigs()) {
-			MetricVisualizer metricVisualizerTemp = new MetricVisualizer(this,
-					metVisConfig);
+		for (MetricVisualizerConfig metVisConfig : config.getMetricVisualizerConfigs()) {
+			MetricVisualizer metricVisualizerTemp = new MetricVisualizer(this, metVisConfig);
 
-			if (metVisConfig.getPositionX() >= 0
-					&& metVisConfig.getPositionY() >= 0) {
+			if (metVisConfig.getPositionX() >= 0 && metVisConfig.getPositionY() >= 0) {
 				visualizerPanelConstraints.gridx = metVisConfig.getPositionX();
 				visualizerPanelConstraints.gridy = metVisConfig.getPositionY();
 				if (visualizerPanelConstraints.gridy > maxYPosition)
@@ -521,90 +490,67 @@ public class MainDisplay extends JFrame {
 			} else {
 				visualizerPanelConstraints.gridy = maxYPosition++;
 			}
-			if (metVisConfig.getColSpan() >= 1
-					&& metVisConfig.getRowSpan() >= 1) {
-				visualizerPanelConstraints.gridwidth = metVisConfig
-						.getColSpan();
-				visualizerPanelConstraints.gridheight = metVisConfig
-						.getRowSpan();
+			if (metVisConfig.getColSpan() >= 1 && metVisConfig.getRowSpan() >= 1) {
+				visualizerPanelConstraints.gridwidth = metVisConfig.getColSpan();
+				visualizerPanelConstraints.gridheight = metVisConfig.getRowSpan();
 			} else {
 				visualizerPanelConstraints.gridwidth = 1;
 				visualizerPanelConstraints.gridheight = 1;
 			}
-			this.visualizerPanel.add(metricVisualizerTemp,
-					visualizerPanelConstraints);
+			this.visualizerPanel.add(metricVisualizerTemp, visualizerPanelConstraints);
 			this.registerDataComponent(metricVisualizerTemp);
 		}
 		// add multi scalar visualizer
-		for (MultiScalarVisualizerConfig multiVisConfig : config
-				.getMultiScalarVisualizerConfigs()) {
-			MultiScalarVisualizer metricVisualizerTemp = new MultiScalarVisualizer(
-					this, multiVisConfig);
+		for (MultiScalarVisualizerConfig multiVisConfig : config.getMultiScalarVisualizerConfigs()) {
+			MultiScalarVisualizer metricVisualizerTemp = new MultiScalarVisualizer(this, multiVisConfig);
 
-			if (multiVisConfig.getPositionX() >= 0
-					&& multiVisConfig.getPositionY() >= 0) {
-				visualizerPanelConstraints.gridx = multiVisConfig
-						.getPositionX();
-				visualizerPanelConstraints.gridy = multiVisConfig
-						.getPositionY();
+			if (multiVisConfig.getPositionX() >= 0 && multiVisConfig.getPositionY() >= 0) {
+				visualizerPanelConstraints.gridx = multiVisConfig.getPositionX();
+				visualizerPanelConstraints.gridy = multiVisConfig.getPositionY();
 				if (visualizerPanelConstraints.gridy > maxYPosition)
 					maxYPosition = visualizerPanelConstraints.gridy;
 			} else {
 				visualizerPanelConstraints.gridy = maxYPosition++;
 			}
-			if (multiVisConfig.getColSpan() >= 1
-					&& multiVisConfig.getRowSpan() >= 1) {
-				visualizerPanelConstraints.gridwidth = multiVisConfig
-						.getColSpan();
-				visualizerPanelConstraints.gridheight = multiVisConfig
-						.getRowSpan();
+			if (multiVisConfig.getColSpan() >= 1 && multiVisConfig.getRowSpan() >= 1) {
+				visualizerPanelConstraints.gridwidth = multiVisConfig.getColSpan();
+				visualizerPanelConstraints.gridheight = multiVisConfig.getRowSpan();
 			} else {
 				visualizerPanelConstraints.gridwidth = 1;
 				visualizerPanelConstraints.gridheight = 1;
 			}
 
-			this.visualizerPanel.add(metricVisualizerTemp,
-					visualizerPanelConstraints);
+			this.visualizerPanel.add(metricVisualizerTemp, visualizerPanelConstraints);
 			this.registerDataComponent(metricVisualizerTemp);
 		}
 		// add label visualizers
-		for (LabelVisualizerConfig labelVisConfig : config
-				.getLabelVisualizerConfigs()) {
-			LabelVisualizer labelVisualizerTemp = new LabelVisualizer(this,
-					labelVisConfig);
+		for (LabelVisualizerConfig labelVisConfig : config.getLabelVisualizerConfigs()) {
+			LabelVisualizer labelVisualizerTemp = new LabelVisualizer(this, labelVisConfig);
 
-			if (labelVisConfig.getPositionX() >= 0
-					&& labelVisConfig.getPositionY() >= 0) {
-				visualizerPanelConstraints.gridx = labelVisConfig
-						.getPositionX();
-				visualizerPanelConstraints.gridy = labelVisConfig
-						.getPositionY();
+			if (labelVisConfig.getPositionX() >= 0 && labelVisConfig.getPositionY() >= 0) {
+				visualizerPanelConstraints.gridx = labelVisConfig.getPositionX();
+				visualizerPanelConstraints.gridy = labelVisConfig.getPositionY();
 				if (visualizerPanelConstraints.gridy > maxYPosition)
 					maxYPosition = visualizerPanelConstraints.gridy;
 			} else {
 				visualizerPanelConstraints.gridy = maxYPosition++;
 			}
-			if (labelVisConfig.getColSpan() >= 1
-					&& labelVisConfig.getRowSpan() >= 1) {
-				visualizerPanelConstraints.gridwidth = labelVisConfig
-						.getColSpan();
-				visualizerPanelConstraints.gridheight = labelVisConfig
-						.getRowSpan();
+			if (labelVisConfig.getColSpan() >= 1 && labelVisConfig.getRowSpan() >= 1) {
+				visualizerPanelConstraints.gridwidth = labelVisConfig.getColSpan();
+				visualizerPanelConstraints.gridheight = labelVisConfig.getRowSpan();
 			} else {
 				visualizerPanelConstraints.gridwidth = 1;
 				visualizerPanelConstraints.gridheight = 1;
 			}
 
-			this.visualizerPanel.add(labelVisualizerTemp,
-					visualizerPanelConstraints);
+			this.visualizerPanel.add(labelVisualizerTemp, visualizerPanelConstraints);
 			this.registerDataComponent(labelVisualizerTemp);
 		}
 		// add log display
 		for (LogDisplayConfig logDisConfig : config.getLogDisplayConfigs()) {
 			LogDisplay logDisplayTemp = new LogDisplay(this, logDisConfig);
 
-			if (logDisConfig.getPositionX() >= 0
-					&& logDisConfig.getPositionY() >= 0) {
+			if (logDisConfig.getPositionX() >= 0 && logDisConfig.getPositionY() >= 0) {
 				visualizerPanelConstraints.gridx = logDisConfig.getPositionX();
 				visualizerPanelConstraints.gridy = logDisConfig.getPositionY();
 				if (visualizerPanelConstraints.gridy > maxYPosition)
@@ -612,26 +558,21 @@ public class MainDisplay extends JFrame {
 			} else {
 				visualizerPanelConstraints.gridy = maxYPosition++;
 			}
-			if (logDisConfig.getColSpan() >= 1
-					&& logDisConfig.getRowSpan() >= 1) {
-				visualizerPanelConstraints.gridwidth = logDisConfig
-						.getColSpan();
-				visualizerPanelConstraints.gridheight = logDisConfig
-						.getRowSpan();
+			if (logDisConfig.getColSpan() >= 1 && logDisConfig.getRowSpan() >= 1) {
+				visualizerPanelConstraints.gridwidth = logDisConfig.getColSpan();
+				visualizerPanelConstraints.gridheight = logDisConfig.getRowSpan();
 			} else {
 				visualizerPanelConstraints.gridwidth = 1;
 				visualizerPanelConstraints.gridheight = 1;
 			}
-			this.visualizerPanel
-					.add(logDisplayTemp, visualizerPanelConstraints);
+			this.visualizerPanel.add(logDisplayTemp, visualizerPanelConstraints);
 			this.dataComponents.add(logDisplayTemp);
 			logDisplayTemp.start();
 		}
 
 		JScrollPane dataScrollPanel = new JScrollPane(this.visualizerPanel);
 		dataScrollPanel.setPreferredSize(config.getVisualizerPanelSize());
-		this.visualizerPanel.setPreferredSize(config
-				.getInnerVisualizerPanelSize());
+		this.visualizerPanel.setPreferredSize(config.getInnerVisualizerPanelSize());
 
 		this.setLayout(new BoxLayout(this.getContentPane(), BoxLayout.X_AXIS));
 		this.getContentPane().add(this.leftSidePanel);
@@ -660,10 +601,8 @@ public class MainDisplay extends JFrame {
 		BatchData tempBatch = b;
 
 		// scaling
-		if (this.config.getScalingExpression() != null
-				&& !this.config.getScalingExpression().equals("none")) {
-			tempBatch = BatchHandler.scaleTimestamp(b,
-					this.config.getScalingExpression());
+		if (this.config.getScalingExpression() != null && !this.config.getScalingExpression().equals("none")) {
+			tempBatch = BatchHandler.scaleTimestamp(b, this.config.getScalingExpression());
 		}
 
 		for (Component c : this.dataComponents) {
@@ -695,19 +634,15 @@ public class MainDisplay extends JFrame {
 		// scaling
 		if (MainDisplay.config.getScalingExpression() != null
 				&& !MainDisplay.config.getScalingExpression().equals("none")) {
-			tempBatch = BatchHandler.scaleTimestamp(b,
-					MainDisplay.config.getScalingExpression());
+			tempBatch = BatchHandler.scaleTimestamp(b, MainDisplay.config.getScalingExpression());
 		}
 
 		for (Component c : this.dataComponents) {
 			if (c instanceof StatsDisplay) {
 				if (this.liveDisplay)
-					((StatsDisplay) c).initData(tempBatch,
-							batchHandler.getDir());
+					((StatsDisplay) c).initData(tempBatch, batchHandler.getDir());
 				else
-					((StatsDisplay) c).initData(tempBatch,
-							batchHandler.getDir(),
-							batchHandler.getMinTimestamp(),
+					((StatsDisplay) c).initData(tempBatch, batchHandler.getDir(), batchHandler.getMinTimestamp(),
 							batchHandler.getMaxTimestamp());
 			}
 			if (c instanceof MetricVisualizer) {
@@ -783,16 +718,13 @@ public class MainDisplay extends JFrame {
 		if (!this.liveDisplay) {
 			File f;
 			if (this.zipMode.equals(ZipMode.runs)) {
-				f = new File(this.batchHandler.getDir() + "run."
-						+ this.batchHandler.getRunId()
+				f = new File(this.batchHandler.getDir() + "run." + this.batchHandler.getRunId()
 						+ Config.get("SUFFIX_ZIP_FILE"));
 				if (f.exists() && !f.isDirectory()) {
 					this.batchHandler.updateBatches();
 					this.batchHandler.init();
 				} else {
-					Log.info("Zip '"
-							+ f.getPath()
-							+ "' not existing, BatchHandler could not be initialized.");
+					Log.info("Zip '" + f.getPath() + "' not existing, BatchHandler could not be initialized.");
 				}
 			} else {
 				f = new File(this.batchHandler.getDir());
@@ -800,25 +732,20 @@ public class MainDisplay extends JFrame {
 					this.batchHandler.updateBatches();
 					this.batchHandler.init();
 				} else {
-					Log.info("Dir '"
-							+ f.getPath()
-							+ "' not existing, BatchHandler could not be initialized.");
+					Log.info("Dir '" + f.getPath() + "' not existing, BatchHandler could not be initialized.");
 				}
 			}
 		}
 	}
 
 	/** Creates and inits a new BatchHandler. **/
-	protected void createBatchHandler(MainDisplayConfig config)
-			throws IOException {
-		createBatchHandler(config.getDefaultDir(), this, liveDisplay,
-				this.zipMode);
+	protected void createBatchHandler(MainDisplayConfig config) throws IOException {
+		createBatchHandler(config.getDefaultDir(), this, liveDisplay, this.zipMode);
 	}
 
-	protected void createBatchHandler(String dataDir, MainDisplay display,
-			boolean liveFlag, ZipMode zipMode) throws IOException {
-		display.setBatchHandler(new BatchHandler(dataDir, display, liveFlag,
-				zipMode));
+	protected void createBatchHandler(String dataDir, MainDisplay display, boolean liveFlag, ZipMode zipMode)
+			throws IOException {
+		display.setBatchHandler(new BatchHandler(dataDir, display, liveFlag, zipMode));
 		display.initBatchHandler();
 	}
 
@@ -827,15 +754,14 @@ public class MainDisplay extends JFrame {
 		if (this.zipMode.equals(ZipMode.runs)) {
 			try {
 				String[] splits = dir.split(Dir.delimiter);
-				this.batchHandler.setRunId(Dir.getRun(splits[splits.length - 1]
-						.replace(Config.get("SUFFIX_ZIP_FILE"), "")));
+				this.batchHandler
+						.setRunId(Dir.getRun(splits[splits.length - 1].replace(Config.get("SUFFIX_ZIP_FILE"), "")));
 				String tempDir = "";
 				for (int i = 0; i < splits.length - 1; i++)
 					tempDir += splits[i] + Dir.delimiter;
 				this.batchHandler.setDir(tempDir);
 			} catch (NumberFormatException e) {
-				Log.warn("NumberFormatException on dir '" + dir
-						+ "', no run-zip.");
+				Log.warn("NumberFormatException on dir '" + dir + "', no run-zip.");
 			}
 		} else {
 			this.batchHandler.setDir(dir);
@@ -908,7 +834,9 @@ public class MainDisplay extends JFrame {
 		return this.batchHandler.getPreviousTimestamp(timestamp);
 	}
 
-	/** called from the statsdisplay to get the amount of previous timestamps **/
+	/**
+	 * called from the statsdisplay to get the amount of previous timestamps
+	 **/
 	public int getAmountOfPreviousTimestamps(long timestamp) {
 		return this.batchHandler.getAmountOfPreviousTimestamps(timestamp);
 	}
@@ -962,4 +890,40 @@ public class MainDisplay extends JFrame {
 			}
 		}
 	}
+
+	/**
+	 * Broadcasts a x1 size slider change to all registered data components.
+	 **/
+	public void broadcastX1SizeSliderChange(Component source, int value) {
+		for (Component c : this.dataComponents) {
+			// dont broadcast to source
+			if (!c.equals(source)) {
+				if (c instanceof MetricVisualizer) {
+					((MetricVisualizer) c).setX1IntervalSizeSlider(value);
+				}
+				if (c instanceof LabelVisualizer) {
+					((LabelVisualizer) c).setX1IntervalSizeSlider(value);
+				}
+			}
+		}
+	}
+
+	/**
+	 * Broadcasts a x1 interval scroll bar change to all registered data
+	 * components.
+	 **/
+	public void broadcastX1IntervalScrollBarChange(Component source, int value) {
+		for (Component c : this.dataComponents) {
+			// dont broadcast to source
+			if (!c.equals(source)) {
+				if (c instanceof MetricVisualizer) {
+					((MetricVisualizer) c).setX1IntervalScrollBar(value);
+				}
+				if (c instanceof LabelVisualizer) {
+					((LabelVisualizer) c).setX1IntervalScrollBar(value);
+				}
+			}
+		}
+	}
+
 }

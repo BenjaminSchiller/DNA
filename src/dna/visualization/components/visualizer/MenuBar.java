@@ -55,7 +55,8 @@ public class MenuBar extends JPanel implements ChangeListener {
 	public static final Dimension menuBarXOptionsPanelSize = new Dimension(65, 45);
 	public static final Dimension menuBarYOptionsPanelSize = new Dimension(65, 45);
 	public static final Dimension menuBarYRightOptionsPanelSize = new Dimension(65, 45);
-	public static final Dimension menuBarIntervalPanelSize = new Dimension(210, 45);
+	public static final Dimension menuBarIntervalPanelSize = new Dimension(225, 45);
+	public static final Dimension menuBarMultiScalarIntervalPanelSize = new Dimension(210, 45);
 
 	// creates the default menu with all panels
 	public MenuBar(Visualizer parent, Dimension d) {
@@ -73,6 +74,7 @@ public class MenuBar extends JPanel implements ChangeListener {
 			boolean addXOptionsPanel, boolean addYOptionsPanel) {
 		this.parent = parent;
 		this.thisMenuBar = this;
+
 		this.setLayout(new GridBagLayout());
 		this.setLayout(new FlowLayout(FlowLayout.LEFT, 0, 0));
 
@@ -86,7 +88,10 @@ public class MenuBar extends JPanel implements ChangeListener {
 
 		// add interval panel
 		if (addIntervalPanel) {
-			this.addIntervalPanel(menuBarIntervalPanelSize);
+			Dimension tempSize = menuBarIntervalPanelSize;
+			if (parent instanceof MultiScalarVisualizer)
+				tempSize = menuBarMultiScalarIntervalPanelSize;
+			this.addIntervalPanel(tempSize);
 		}
 
 		// add x axis options panel
@@ -116,6 +121,8 @@ public class MenuBar extends JPanel implements ChangeListener {
 	private JScrollBar x1IntervalScrollBar;
 	private JCheckBox x1ShowAllCheckBox;
 	private JSlider x1SizeSlider;
+	private JCheckBox x1ConnectedCheckBox;
+
 	// for x2
 	private JScrollBar x2IntervalScrollBar;
 	private JCheckBox x2ShowAllCheckBox;
@@ -254,9 +261,28 @@ public class MenuBar extends JPanel implements ChangeListener {
 					parent.xAxis1.setRange(new Range(minTimestampNew, maxTimestampNew));
 					// update x ticks
 					parent.updateX1Ticks();
+
+					parent.broadcastX1IntervalSizeSliderChange(x1SizeSlider.getValue());
+					parent.broadcastX1IntervalScrollBarChange(x1IntervalScrollBar.getValue());
 				}
 			}
 
+		});
+
+		// x1 connected checkbox
+		this.x1ConnectedCheckBox = new JCheckBox("", this.parent.isX1Connected());
+		this.x1ConnectedCheckBox.setToolTipText("Check to connect x1 axis with other components");
+		this.x1ConnectedCheckBox.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent event) {
+				// check if checkbox is selected
+				if (x1ConnectedCheckBox.isSelected()) {
+					parent.setX1Connected(true);
+
+				} else {
+					parent.setX1Connected(false);
+				}
+			}
 		});
 
 		// add components
@@ -264,6 +290,8 @@ public class MenuBar extends JPanel implements ChangeListener {
 		upperPanel.add(this.x1ShowAllCheckBox);
 		upperPanel.add(this.x1SizeSlider);
 		upperPanel.add(this.x1IntervalScrollBar);
+		if (!(parent instanceof MultiScalarVisualizer))
+			upperPanel.add(this.x1ConnectedCheckBox);
 
 		/** add uppper panel **/
 		c.gridx = 0;
@@ -738,8 +766,14 @@ public class MenuBar extends JPanel implements ChangeListener {
 			source = (JSlider) e.getSource();
 			intervalScrollBar = this.x1IntervalScrollBar;
 			// check if event is coming from x2SizeSlider
-			if (e.getSource().equals(this.x2SizeSlider))
+			if (e.getSource().equals(this.x2SizeSlider)) {
 				intervalScrollBar = this.x2IntervalScrollBar;
+			} else {
+				// if its x1 and parent is not multiscalar vis --> broadcast new
+				// value
+				if (!(this.parent instanceof MultiScalarVisualizer))
+					this.parent.broadcastX1IntervalSizeSliderChange(source.getValue());
+			}
 
 			// check if slider is set on the right end
 			if (intervalScrollBar.getValue() + intervalScrollBar.getModel().getExtent() == intervalScrollBar
@@ -781,6 +815,18 @@ public class MenuBar extends JPanel implements ChangeListener {
 	/** Sets the y-coords label text. **/
 	public void setYCoordsLabelText(String text) {
 		this.yCoordsLabel.setText(text);
+	}
+
+	/** Sets the x1 interval size slider to a value. **/
+	public void setX1IntervalSizeSlider(int value) {
+		if (this.x1SizeSlider != null && this.x1SizeSlider.isEnabled())
+			this.x1SizeSlider.setValue(value);
+	}
+
+	/** Set x1 interval scroll bar. **/
+	public void setX1IntervalScrollBar(int value) {
+		if (this.x1IntervalScrollBar != null & this.x1IntervalScrollBar.isEnabled())
+			this.x1IntervalScrollBar.setValue(value);
 	}
 
 }

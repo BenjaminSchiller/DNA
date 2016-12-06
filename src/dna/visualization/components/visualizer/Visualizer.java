@@ -57,6 +57,9 @@ public class Visualizer extends JPanel {
 	// shows if the visualizer is locked or not
 	protected boolean locked;
 
+	// if true the x1 axis interval selections are shared with other components
+	protected boolean x1Connected;
+
 	// constructor
 	@SuppressWarnings("rawtypes")
 	public Visualizer(Dimension chartSize, Dimension legendSize) {
@@ -471,6 +474,53 @@ public class Visualizer extends JPanel {
 	/** Returns if the visualizer is locked. **/
 	public boolean isLocked() {
 		return this.locked;
+	}
+
+	/**
+	 * Broadcasts the x1 interval size slider changes. The visualizer method
+	 * does nothing as the visualizer does not know the main display and cant
+	 * forward the broadcast. Shall be overridden by visualizer implementations.
+	 **/
+	public void broadcastX1IntervalSizeSliderChange(int value) {
+		// do nothing here
+	}
+
+	/**
+	 * Broadcasts the x1 interval scroll bar changes. The visualizer method does
+	 * nothing as the visualizer does not know the main display and cant forward
+	 * the broadcast. Shall be overridden by visualizer implementations.
+	 **/
+	public void broadcastX1IntervalScrollBarChange(int value) {
+		// do nothing here
+	}
+
+	public void broadcastX1Changes(int sizeValue, int intervalValue) {
+		// do nothing here
+	}
+
+	/** Sets the x1 interval size slider. **/
+	public void setX1IntervalSizeSlider(int value) {
+		if (this.isX1Connected())
+			this.menuBar.setX1IntervalSizeSlider(value);
+	}
+
+	/** Sets the x1 interval scrollbar. **/
+	public void setX1IntervalScrollBar(int value) {
+		if (this.isX1Connected())
+			this.menuBar.setX1IntervalScrollBar(value);
+	}
+
+	/** Returns if this component is currently connected to shared x1 axis. **/
+	public boolean isX1Connected() {
+		return this.x1Connected;
+	}
+
+	/**
+	 * Sets if the component is connected or not. Called by menu-bar, dont call
+	 * manually! Changes will not be reflected by the menu-bar checkbox.
+	 **/
+	public void setX1Connected(boolean connected) {
+		this.x1Connected = connected;
 	}
 
 }
