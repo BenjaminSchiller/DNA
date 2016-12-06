@@ -926,4 +926,18 @@ public class MainDisplay extends JFrame {
 		}
 	}
 
+	public void broadcastX1IntervalEnabled(Component source, boolean enabled) {
+		for (Component c : this.dataComponents) {
+			// dont broadcast to source
+			if (!c.equals(source)) {
+				if (c instanceof MetricVisualizer) {
+					((MetricVisualizer) c).setX1IntervalEnabled(enabled);
+				}
+				if (c instanceof LabelVisualizer) {
+					((LabelVisualizer) c).setX1IntervalEnabled(enabled);
+				}
+			}
+		}
+	}
+
 }
