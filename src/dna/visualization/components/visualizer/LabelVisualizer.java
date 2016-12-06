@@ -75,7 +75,7 @@ public class LabelVisualizer extends Visualizer {
 		// super(config.getChartSize(), config.getLegendSize());
 		super(new Dimension(450, 320), new Dimension(190, 330));
 
-		this.x1Connected = true;
+		this.x1Connected = config.getMenuBarConfig().isX1AxisConnected();
 		this.mainDisplay = mainDisplay;
 		this.labelTraces = new HashMap<String, LabelTrace>();
 		this.mapping = new HashMap<String, Integer>();
@@ -642,7 +642,7 @@ public class LabelVisualizer extends Visualizer {
 		if (this.isX1Connected())
 			this.mainDisplay.broadcastX1IntervalScrollBarChange(this, value);
 	}
-	
+
 	@Override
 	public void broadcastX1IntervalEnabled(boolean enabled) {
 		if (this.isX1Connected())

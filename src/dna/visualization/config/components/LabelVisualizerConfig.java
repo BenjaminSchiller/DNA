@@ -1,9 +1,6 @@
 package dna.visualization.config.components;
 
-import java.awt.Color;
-import java.awt.Dimension;
-import java.awt.Font;
-
+import dna.visualization.MainDisplay;
 import dna.visualization.config.JSON.JSONObject;
 
 /**
@@ -34,9 +31,8 @@ public class LabelVisualizerConfig {
 
 	protected MenuBarConfig menuBarConfig;
 
-	public LabelVisualizerConfig(String name, int positionX, int positionY,
-			int rowSpan, int colSpan, String x1AxisTitle, String xAxisType,
-			String xAxisFormat, String y1AxisTitle, String y2AxisTitle,
+	public LabelVisualizerConfig(String name, int positionX, int positionY, int rowSpan, int colSpan,
+			String x1AxisTitle, String xAxisType, String xAxisFormat, String y1AxisTitle, String y2AxisTitle,
 			boolean traceModeLtd, MenuBarConfig menuBarConfig) {
 		this.name = name;
 		this.positionX = positionX;
@@ -103,8 +99,7 @@ public class LabelVisualizerConfig {
 		return menuBarConfig;
 	}
 
-	public static LabelVisualizerConfig createLabelVisualizerConfigFromJSONObject(
-			JSONObject o) {
+	public static LabelVisualizerConfig createLabelVisualizerConfigFromJSONObject(JSONObject o) {
 		String name = "Label Visualizer 1";
 		int positionX = -1;
 		int positionY = -1;
@@ -122,9 +117,11 @@ public class LabelVisualizerConfig {
 
 		boolean traceModeLtd = true;
 
-		MenuBarConfig menuBarConfig = new MenuBarConfig(new Dimension(635, 50),
-				new Font("Dialog", Font.PLAIN, 11), Color.BLACK, true, true,
-				true, true);
+		MenuBarConfig menuBarConfig = MainDisplay.DefaultConfig.getMetricVisualizerConfigs()[0].getMenuBarConfig();
+		// MenuBarConfig menuBarConfig = new MenuBarConfig(new Dimension(635,
+		// 50),
+		// new Font("Dialog", Font.PLAIN, 11), Color.BLACK, true, true,
+		// true, true, true);
 		// "MenuBar": {
 		// "Width": 635,
 		// "Height": 50,
@@ -140,9 +137,8 @@ public class LabelVisualizerConfig {
 		// }
 		// },
 
-		return new LabelVisualizerConfig(name, positionX, positionY, rowSpan,
-				colSpan, x1AxisTitle, xAxisType, xAxisFormat, y1AxisTitle,
-				y2AxisTitle, traceModeLtd, menuBarConfig);
+		return new LabelVisualizerConfig(name, positionX, positionY, rowSpan, colSpan, x1AxisTitle, xAxisType,
+				xAxisFormat, y1AxisTitle, y2AxisTitle, traceModeLtd, menuBarConfig);
 	}
 
 }

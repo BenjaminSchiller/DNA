@@ -71,7 +71,7 @@ public class MetricVisualizer extends Visualizer {
 		// initialization
 		super(config.getChartSize(), config.getLegendSize());
 
-		this.x1Connected = true;
+		this.x1Connected = config.getMenuBarConfig().isX1AxisConnected();
 		this.mainDisplay = mainDisplay;
 		this.traces = new HashMap<String, ITrace2D>();
 		this.availableValues = new ArrayList<String>();
