@@ -207,6 +207,8 @@ public class MenuBar extends JPanel implements ChangeListener {
 					x1IntervalScrollBar.setEnabled(true);
 					x1SizeSlider.setEnabled(true);
 				}
+
+				parent.broadcastX1IntervalEnabled(x1ShowAllCheckBox.isSelected());
 			}
 		});
 
@@ -827,6 +829,20 @@ public class MenuBar extends JPanel implements ChangeListener {
 	public void setX1IntervalScrollBar(int value) {
 		if (this.x1IntervalScrollBar != null & this.x1IntervalScrollBar.isEnabled())
 			this.x1IntervalScrollBar.setValue(value);
+	}
+
+	/** Set x1 interval enabled. **/
+	public void setX1IntervalEnabled(boolean enabled) {
+		System.out.println("setting enabled!");
+		if (this.x1ShowAllCheckBox != null) {
+			if (this.x1ShowAllCheckBox.isSelected()) {
+				if (!enabled)
+					this.x1ShowAllCheckBox.doClick();
+			} else {
+				if (enabled)
+					this.x1ShowAllCheckBox.doClick();
+			}
+		}
 	}
 
 }

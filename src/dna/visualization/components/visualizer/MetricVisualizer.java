@@ -780,4 +780,10 @@ public class MetricVisualizer extends Visualizer {
 			this.mainDisplay.broadcastX1IntervalScrollBarChange(this, value);
 	}
 
+	@Override
+	public void broadcastX1IntervalEnabled(boolean enabled) {
+		if (this.isX1Connected())
+			this.mainDisplay.broadcastX1IntervalEnabled(this, enabled);
+	}
+
 }

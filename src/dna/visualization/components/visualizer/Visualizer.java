@@ -494,7 +494,12 @@ public class Visualizer extends JPanel {
 		// do nothing here
 	}
 
-	public void broadcastX1Changes(int sizeValue, int intervalValue) {
+	/**
+	 * Broadcasts the x1 interval checkbox changes. The visualizer method does
+	 * nothing as the visualizer does not know the main display and cant forward
+	 * the broadcast. Shall be overridden by visualizer implementations.
+	 **/
+	public void broadcastX1IntervalEnabled(boolean enabled) {
 		// do nothing here
 	}
 
@@ -508,6 +513,11 @@ public class Visualizer extends JPanel {
 	public void setX1IntervalScrollBar(int value) {
 		if (this.isX1Connected())
 			this.menuBar.setX1IntervalScrollBar(value);
+	}
+	
+	public void setX1IntervalEnabled(boolean enabled) {
+		if (this.isX1Connected())
+			this.menuBar.setX1IntervalEnabled(enabled);
 	}
 
 	/** Returns if this component is currently connected to shared x1 axis. **/

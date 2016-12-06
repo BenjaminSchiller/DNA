@@ -141,7 +141,8 @@ public class LabelVisualizer extends Visualizer {
 			public void mouseMoved(MouseEvent e) {
 				if (chart.getPointFinder().getNearestPoint(e, chart) != null) {
 					ITracePoint2D tempPointFinder = chart.getPointFinder().getNearestPoint(e, chart);
-					menuBar.updateCoordsPanel(tempPointFinder.getX(), tempPointFinder.getY());
+					if (tempPointFinder != null)
+						menuBar.updateCoordsPanel(tempPointFinder.getX(), tempPointFinder.getY());
 				}
 			}
 
@@ -640,6 +641,12 @@ public class LabelVisualizer extends Visualizer {
 	public void broadcastX1IntervalScrollBarChange(int value) {
 		if (this.isX1Connected())
 			this.mainDisplay.broadcastX1IntervalScrollBarChange(this, value);
+	}
+	
+	@Override
+	public void broadcastX1IntervalEnabled(boolean enabled) {
+		if (this.isX1Connected())
+			this.mainDisplay.broadcastX1IntervalEnabled(this, enabled);
 	}
 
 }
