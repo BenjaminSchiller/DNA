@@ -514,8 +514,6 @@ public class MenuBar extends JPanel implements ChangeListener {
 			});
 			yLeftOptionsPanelConstraints.gridy = 1;
 
-			// if(this.parent instanceof LabelVisualizer)
-			// toggleGridYRightButton.setVisible(false);
 			this.yLeftOptionsPanel.add(toggleGridYRightButton, yLeftOptionsPanelConstraints);
 		}
 
