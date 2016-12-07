@@ -482,29 +482,42 @@ public class MenuBar extends JPanel implements ChangeListener {
 		yLeftOptionsPanelConstraints.gridy = 0;
 		this.yLeftOptionsPanel.add(toggleGridYLeftButton, yLeftOptionsPanelConstraints);
 
-		// toggle right y axis grid button
-		final JButton toggleGridYRightButton = new JButton("y2");
-		toggleGridYRightButton.setFont(MainDisplay.config.getDefaultFont());
-		toggleGridYRightButton.setForeground(Color.GRAY);
-		toggleGridYRightButton.setPreferredSize(
-				new Dimension(new Dimension(size.width - 5, (int) Math.floor((size.getHeight() - 5) / 2))));
-		toggleGridYRightButton.setMargin(new Insets(0, 0, 0, 0));
-		toggleGridYRightButton.setToolTipText("Show grid of right y-axis (y2).");
-		toggleGridYRightButton.addActionListener(new ActionListener() {
-			@Override
-			public void actionPerformed(ActionEvent event) {
-				if (toggleGridYRightButton.getForeground().equals(Color.GRAY)) {
-					toggleGridYRightButton.setForeground(MainDisplay.config.getDefaultFontColor());
-					toggleGridYRightButton.setToolTipText("Hide grid of right y-axis (y2).");
-				} else {
-					toggleGridYRightButton.setForeground(Color.GRAY);
-					toggleGridYRightButton.setToolTipText("Show grid of right y-axis (y2).");
+		if (this.parent instanceof LabelVisualizer) {
+			// add dummy panel
+			JPanel dummyP = new JPanel();
+			dummyP.setPreferredSize(
+					new Dimension(new Dimension(size.width - 5, (int) Math.floor((size.getHeight() - 5) / 2))));
+			yLeftOptionsPanelConstraints.gridx = 0;
+			yLeftOptionsPanelConstraints.gridy = 1;
+			this.yLeftOptionsPanel.add(dummyP, yLeftOptionsPanelConstraints);
+		} else {
+			// toggle right y axis grid button
+			final JButton toggleGridYRightButton = new JButton("y2");
+			toggleGridYRightButton.setFont(MainDisplay.config.getDefaultFont());
+			toggleGridYRightButton.setForeground(Color.GRAY);
+			toggleGridYRightButton.setPreferredSize(
+					new Dimension(new Dimension(size.width - 5, (int) Math.floor((size.getHeight() - 5) / 2))));
+			toggleGridYRightButton.setMargin(new Insets(0, 0, 0, 0));
+			toggleGridYRightButton.setToolTipText("Show grid of right y-axis (y2).");
+			toggleGridYRightButton.addActionListener(new ActionListener() {
+				@Override
+				public void actionPerformed(ActionEvent event) {
+					if (toggleGridYRightButton.getForeground().equals(Color.GRAY)) {
+						toggleGridYRightButton.setForeground(MainDisplay.config.getDefaultFontColor());
+						toggleGridYRightButton.setToolTipText("Hide grid of right y-axis (y2).");
+					} else {
+						toggleGridYRightButton.setForeground(Color.GRAY);
+						toggleGridYRightButton.setToolTipText("Show grid of right y-axis (y2).");
+					}
+					parent.toggleY2Grid();
 				}
-				parent.toggleY2Grid();
-			}
-		});
-		yLeftOptionsPanelConstraints.gridy = 1;
-		this.yLeftOptionsPanel.add(toggleGridYRightButton, yLeftOptionsPanelConstraints);
+			});
+			yLeftOptionsPanelConstraints.gridy = 1;
+
+			// if(this.parent instanceof LabelVisualizer)
+			// toggleGridYRightButton.setVisible(false);
+			this.yLeftOptionsPanel.add(toggleGridYRightButton, yLeftOptionsPanelConstraints);
+		}
 
 		// add to menu bar
 		this.add(this.yLeftOptionsPanel);
