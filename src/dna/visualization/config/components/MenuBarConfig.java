@@ -88,7 +88,7 @@ public class MenuBarConfig {
 			size = new Dimension(o.getInt("Width"), o.getInt("Height"));
 			addCoordsPanel = o.getBoolean("showCoordsPanel");
 			addIntervalPanel = o.getBoolean("showIntervalPanel");
-			x1AxisConnected = o.getBoolean("connected");
+			x1AxisConnected = true;
 			addXOptionsPanel = o.getBoolean("showXOptionsPanel");
 			addYOptionsPanel = o.getBoolean("showYOptionsPanel");
 			JSONObject fontObject = o.getJSONObject("CoordsFont");

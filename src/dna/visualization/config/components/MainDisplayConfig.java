@@ -448,6 +448,7 @@ public class MainDisplayConfig {
 					metricVisualizerConfigsArray.add(MetricVisualizerConfig
 							.createMetricVisualizerConfigFromJSONObject(mvo.getJSONObject(metricVis)));
 				} catch (Exception e) {
+					e.printStackTrace();
 				}
 			}
 		} catch (Exception e) {
@@ -466,6 +467,7 @@ public class MainDisplayConfig {
 					multiScalarVisualizerConfigsArray.add(MultiScalarVisualizerConfig
 							.createMultiScalarVisualizerConfigFromJSONObject(mvo.getJSONObject(multiScalarVis)));
 				} catch (Exception e) {
+					e.printStackTrace();
 				}
 			}
 		} catch (Exception e) {
@@ -480,7 +482,6 @@ public class MainDisplayConfig {
 		try {
 			JSONObject mvo = o.getJSONObject("LabelVisualizerConfigs");
 			for (String labelVis : JSONObject.getNames(mvo)) {
-				System.out.println("init labelvis config: " + labelVis);
 				try {
 					labelVisualizerConfigsArray.add(LabelVisualizerConfig
 							.createLabelVisualizerConfigFromJSONObject(mvo.getJSONObject(labelVis)));
