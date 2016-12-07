@@ -514,7 +514,8 @@ public class Visualizer extends JPanel {
 		if (this.isX1Connected())
 			this.menuBar.setX1IntervalScrollBar(value);
 	}
-	
+
+	/** Sets if the interval checkbox is set and if alterations are enabled. **/
 	public void setX1IntervalEnabled(boolean enabled) {
 		if (this.isX1Connected())
 			this.menuBar.setX1IntervalEnabled(enabled);
@@ -531,6 +532,11 @@ public class Visualizer extends JPanel {
 	 **/
 	public void setX1Connected(boolean connected) {
 		this.x1Connected = connected;
+	}
+
+	/** Returns the chart. **/
+	public Chart2D getChart() {
+		return this.chart;
 	}
 
 }

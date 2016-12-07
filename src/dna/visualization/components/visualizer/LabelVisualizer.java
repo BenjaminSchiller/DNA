@@ -131,6 +131,7 @@ public class LabelVisualizer extends Visualizer {
 
 		this.yAxis1.setAxisScalePolicy(new AxisScalePolicyManualTicks());
 		this.yAxis1.setRangePolicy(new RangePolicyFixedViewport(new Range(0, 1)));
+		this.yAxis1.setPaintScale(false);
 
 		// add menu bar
 		super.addMenuBar(config.getMenuBarConfig());
@@ -161,8 +162,9 @@ public class LabelVisualizer extends Visualizer {
 		this.legend.setLegendSize(new Dimension(190, 330));
 		this.xAxisOffset = 0.2;
 
-		this.yAxis1.setAxisTitle(new AxisTitle(config.getY1AxisTitle()));
-		this.yAxis2.setAxisTitle(new AxisTitle(config.getY2AxisTitle()));
+		// this.yAxis1.setAxisTitle(new AxisTitle(config.getY1AxisTitle()));
+		this.yAxis1.setAxisTitle(new AxisTitle("Labels"));
+		// this.yAxis2.setAxisTitle(new AxisTitle(config.getY2AxisTitle()));
 
 	}
 
