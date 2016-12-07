@@ -734,9 +734,9 @@ public class MenuBar extends JPanel implements ChangeListener {
 	public void updateCoordsPanel(double x, double y) {
 		if (this.coordsPanel != null) {
 			if (this.parent instanceof LabelVisualizer) {
-				if (MainDisplay.config.getMetricVisualizerConfigs()[0].getxAxisType().equals("date")) {
+				if (MainDisplay.config.getLabelVisualizerConfigs()[0].getxAxisType().equals("date")) {
 					SimpleDateFormat tempDateFormat = new SimpleDateFormat(
-							MainDisplay.config.getMetricVisualizerConfigs()[0].getxAxisFormat());
+							MainDisplay.config.getLabelVisualizerConfigs()[0].getxAxisFormat());
 					this.xCoordsValue.setText(tempDateFormat.format(new Date((long) Math.floor(x))));
 				} else {
 					this.xCoordsValue.setText("" + x);

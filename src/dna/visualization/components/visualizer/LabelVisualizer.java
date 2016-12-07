@@ -1,7 +1,6 @@
 package dna.visualization.components.visualizer;
 
 import java.awt.Color;
-import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseMotionListener;
@@ -19,11 +18,10 @@ import javax.swing.border.TitledBorder;
 import dna.labels.Label;
 import dna.labels.LabelList;
 import dna.series.data.BatchData;
-import dna.util.Config;
 import dna.visualization.MainDisplay;
 import dna.visualization.components.visualizer.traces.LabelTrace;
-import dna.visualization.config.VisualizerListConfig;
 import dna.visualization.config.components.LabelVisualizerConfig;
+import dna.visualization.config.components.LabelVisualizerConfig.LabelAdditionPolicy;
 import info.monitorenter.gui.chart.IAxis.AxisTitle;
 import info.monitorenter.gui.chart.ITrace2D;
 import info.monitorenter.gui.chart.ITracePoint2D;
@@ -55,25 +53,18 @@ public class LabelVisualizer extends Visualizer {
 
 	private boolean xAxisTypeTimestamp;
 	private long currentTimestamp;
-	private double xAxisOffset;
 
 	// config
-	protected VisualizerListConfig listConfig;
 	protected MainDisplay mainDisplay;
 	protected LabelVisualizerConfig config;
 
 	protected boolean automaticAddition;
 
-	public enum LabelAdditionPolicy {
-		AUTOMATIC_ADDITION_ALL, AUTOMATIC_ADDITION_LIST, MANUAL
-	}
-
 	protected LabelAdditionPolicy labelAdditionPolicy;
 	protected String[] labelAdditionList;
 
 	public LabelVisualizer(MainDisplay mainDisplay, LabelVisualizerConfig config) {
-		// super(config.getChartSize(), config.getLegendSize());
-		super(new Dimension(450, 320), new Dimension(190, 330));
+		super(config.getChartSize(), config.getLegendSize());
 
 		this.x1Connected = config.getMenuBarConfig().isX1AxisConnected();
 		this.mainDisplay = mainDisplay;
@@ -82,28 +73,13 @@ public class LabelVisualizer extends Visualizer {
 		this.colorMap = new HashMap<String, Color>();
 		this.mappingCounter = 0;
 		this.availableValues = new ArrayList<String>();
-		// this.listConfig = config.getListConfig();
-		// this.bufferSize = config.getTraceLength();
-		// this.TRACE_LENGTH = config.getTraceLength();
 
-		String policyString = Config.get("LABEL_VIS_ADDITION_POLICY");
-		switch (policyString) {
-		case "all":
-			this.labelAdditionPolicy = LabelAdditionPolicy.AUTOMATIC_ADDITION_ALL;
-			break;
-		case "list":
-			this.labelAdditionPolicy = LabelAdditionPolicy.AUTOMATIC_ADDITION_LIST;
-			break;
-		default:
-			this.labelAdditionPolicy = LabelAdditionPolicy.MANUAL;
-			break;
-		}
+		this.bufferSize = config.getTraceLength();
+		this.TRACE_LENGTH = config.getTraceLength();
 
-		this.labelAdditionList = Config.keys("LABEL_VIS_ADDITION_LIST");
+		this.labelAdditionPolicy = config.getAdditionPolicy();
+		this.labelAdditionList = config.getAdditionList();
 
-		this.listConfig = new VisualizerListConfig();
-		this.bufferSize = 1000;
-		this.TRACE_LENGTH = 1000;
 		this.config = config;
 		this.automaticAddition = true;
 
@@ -151,20 +127,15 @@ public class LabelVisualizer extends Visualizer {
 			}
 		});
 
+		// change y-coords label text to represent values v
 		this.menuBar.setYCoordsLabelText("v:");
 
 		// apply config
-		// this.chart.setPreferredSize(config.getChartSize());
-		// this.legend.setLegendSize(config.getLegendSize());
-		// this.xAxisOffset = config.getxAxisOffset();
+		this.chart.setPreferredSize(config.getChartSize());
+		this.legend.setLegendSize(config.getLegendSize());
 
-		this.chart.setPreferredSize(new Dimension(450, 320));
-		this.legend.setLegendSize(new Dimension(190, 330));
-		this.xAxisOffset = 0.2;
-
-		// this.yAxis1.setAxisTitle(new AxisTitle(config.getY1AxisTitle()));
-		this.yAxis1.setAxisTitle(new AxisTitle("Labels"));
-		// this.yAxis2.setAxisTitle(new AxisTitle(config.getY2AxisTitle()));
+		this.xAxis1.setAxisTitle(new AxisTitle(config.getX1AxisTitle()));
+		this.yAxis1.setAxisTitle(new AxisTitle(config.getY1AxisTitle()));
 
 	}
 
@@ -200,10 +171,6 @@ public class LabelVisualizer extends Visualizer {
 		// init addbox
 		String[] tempValues = this.gatherValues(b);
 		this.legend.updateAddBox(tempValues);
-
-		// load config
-		// if (this.listConfig != null && !super.locked)
-		// this.loadConfig(this.listConfig);
 
 		// toggle visibility and validate
 		this.toggleYAxisVisibility();
@@ -314,9 +281,9 @@ public class LabelVisualizer extends Visualizer {
 
 	/** Returns the trace size of a trace based on the number of traces. **/
 	protected int getTraceSize(int traces) {
-		// int chartHeight = this.config.getChart..
-		int chartHeight = 320 - 20; // minus paddings ~~
-		int individualHeight = (int) Math.floor((0.5 * chartHeight) / traces);
+		int paddings = 50; // this will be substracted from the absolute height
+		int chartHeight = (int) Math.floor(this.config.getChartSize().getHeight()) - paddings;
+		int individualHeight = (int) Math.floor((this.config.getBarThickness() * chartHeight) / traces);
 
 		return individualHeight;
 	}
