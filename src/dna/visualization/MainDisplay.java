@@ -655,6 +655,9 @@ public class MainDisplay extends JFrame {
 				((LabelVisualizer) c).initData(tempBatch);
 			}
 		}
+
+		// sync x-axises of metric and label visualizers
+		setSync();
 	}
 
 	/** register components to recieve the batchdata objects **/
@@ -935,6 +938,19 @@ public class MainDisplay extends JFrame {
 				}
 				if (c instanceof LabelVisualizer) {
 					((LabelVisualizer) c).setX1IntervalEnabled(enabled);
+				}
+			}
+		}
+	}
+
+	public void setSync() {
+		Visualizer source = null;
+		for (Component c : this.dataComponents) {
+			if (c instanceof MetricVisualizer || c instanceof LabelVisualizer) {
+				if (source == null) {
+					source = (Visualizer) c;
+				} else {
+					((Visualizer) c).getChart().setSynchronizedXStartChart(source.getChart());
 				}
 			}
 		}
