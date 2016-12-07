@@ -23,15 +23,11 @@ import dna.visualization.config.JSON.JSONTokener;
 public class MainDisplayConfig {
 
 	// constructor
-	public MainDisplayConfig(String name, Dimension size,
-			boolean liveDisplayMode, boolean fullscreen, ZipMode zipMode,
-			String defaultDir, Font defaultFont, Color defaultFontColor,
-			Dimension buttonSize, String logoDir, Dimension logoSize,
-			String scalingExpression, Dimension visualizerPanelSize,
-			Dimension innerVisualizerPanelSize,
-			StatsDisplayConfig statsDisplayConfig,
-			LogDisplayConfig[] logDisplayConfigs,
-			MetricVisualizerConfig[] metricVisualizerConfigs,
+	public MainDisplayConfig(String name, Dimension size, boolean liveDisplayMode, boolean fullscreen, ZipMode zipMode,
+			String defaultDir, Font defaultFont, Color defaultFontColor, Dimension buttonSize, String logoDir,
+			Dimension logoSize, String scalingExpression, Dimension visualizerPanelSize,
+			Dimension innerVisualizerPanelSize, StatsDisplayConfig statsDisplayConfig,
+			LogDisplayConfig[] logDisplayConfigs, MetricVisualizerConfig[] metricVisualizerConfigs,
 			MultiScalarVisualizerConfig[] multiScalarVisualizerConfigs,
 			LabelVisualizerConfig[] labelVisualizerConfigs) {
 		this.name = name;
@@ -196,8 +192,7 @@ public class MainDisplayConfig {
 	}
 
 	/** Creates a main display config object from a given json object. **/
-	public static MainDisplayConfig createMainDisplayConfigFromJSONObject(
-			JSONObject o) {
+	public static MainDisplayConfig createMainDisplayConfigFromJSONObject(JSONObject o) {
 		// init
 		String name;
 		Dimension size;
@@ -265,24 +260,19 @@ public class MainDisplayConfig {
 			defaultFont = new Font(tempName, style, tempSize);
 			defaultFontColor = Color.BLACK;
 			try {
-				Field field = Color.class.getField(fontObject
-						.getString("Color"));
+				Field field = Color.class.getField(fontObject.getString("Color"));
 				defaultFontColor = (Color) field.get(null);
 			} catch (Exception e) {
 			}
 			JSONObject buttonObject = o.getJSONObject("Buttons");
-			buttonSize = new Dimension(buttonObject.getInt("Width"),
-					buttonObject.getInt("Height"));
+			buttonSize = new Dimension(buttonObject.getInt("Width"), buttonObject.getInt("Height"));
 			JSONObject logoObject = o.getJSONObject("Logo");
 			logoDir = logoObject.getString("Dir");
-			logoSize = new Dimension(logoObject.getInt("Width"),
-					logoObject.getInt("Height"));
+			logoSize = new Dimension(logoObject.getInt("Width"), logoObject.getInt("Height"));
 			scalingExpression = o.getString("Scaling");
 			JSONObject visPanelObject = o.getJSONObject("VisualizerPanel");
-			visualizerPanelSize = new Dimension(visPanelObject.getInt("Width"),
-					visPanelObject.getInt("Height"));
-			innerVisualizerPanelSize = new Dimension(
-					visPanelObject.getInt("InnerWidth"),
+			visualizerPanelSize = new Dimension(visPanelObject.getInt("Width"), visPanelObject.getInt("Height"));
+			innerVisualizerPanelSize = new Dimension(visPanelObject.getInt("InnerWidth"),
 					visPanelObject.getInt("InnerHeight"));
 		} else {
 			// use default config values as defaults
@@ -297,12 +287,9 @@ public class MainDisplayConfig {
 			buttonSize = MainDisplay.DefaultConfig.getButtonSize();
 			logoDir = MainDisplay.DefaultConfig.getLogoDir();
 			logoSize = MainDisplay.DefaultConfig.getLogoSize();
-			scalingExpression = MainDisplay.DefaultConfig
-					.getScalingExpression();
-			visualizerPanelSize = MainDisplay.DefaultConfig
-					.getVisualizerPanelSize();
-			innerVisualizerPanelSize = MainDisplay.DefaultConfig
-					.getInnerVisualizerPanelSize();
+			scalingExpression = MainDisplay.DefaultConfig.getScalingExpression();
+			visualizerPanelSize = MainDisplay.DefaultConfig.getVisualizerPanelSize();
+			innerVisualizerPanelSize = MainDisplay.DefaultConfig.getInnerVisualizerPanelSize();
 		}
 
 		// overwrite default values with parsed values
@@ -382,8 +369,7 @@ public class MainDisplayConfig {
 			} catch (Exception e) {
 			}
 			try {
-				Field field = Color.class.getField(fontObject
-						.getString("Color"));
+				Field field = Color.class.getField(fontObject.getString("Color"));
 				defaultFontColor = (Color) field.get(null);
 			} catch (Exception e) {
 			}
@@ -397,8 +383,7 @@ public class MainDisplayConfig {
 
 		try {
 			JSONObject buttonObject = o.getJSONObject("Buttons");
-			buttonSize = new Dimension(buttonObject.getInt("Width"),
-					buttonObject.getInt("Height"));
+			buttonSize = new Dimension(buttonObject.getInt("Width"), buttonObject.getInt("Height"));
 		} catch (Exception e) {
 		}
 
@@ -409,8 +394,7 @@ public class MainDisplayConfig {
 			} catch (Exception e) {
 			}
 			try {
-				logoSize = new Dimension(logoObject.getInt("Width"),
-						logoObject.getInt("Height"));
+				logoSize = new Dimension(logoObject.getInt("Width"), logoObject.getInt("Height"));
 			} catch (Exception e) {
 			}
 		} catch (Exception e) {
@@ -419,14 +403,11 @@ public class MainDisplayConfig {
 		try {
 			JSONObject visPanelObject = o.getJSONObject("VisualizerPanel");
 			try {
-				visualizerPanelSize = new Dimension(
-						visPanelObject.getInt("Width"),
-						visPanelObject.getInt("Height"));
+				visualizerPanelSize = new Dimension(visPanelObject.getInt("Width"), visPanelObject.getInt("Height"));
 			} catch (Exception e) {
 			}
 			try {
-				innerVisualizerPanelSize = new Dimension(
-						visPanelObject.getInt("InnerWidth"),
+				innerVisualizerPanelSize = new Dimension(visPanelObject.getInt("InnerWidth"),
 						visPanelObject.getInt("InnerHeight"));
 			} catch (Exception e) {
 			}
@@ -435,8 +416,7 @@ public class MainDisplayConfig {
 
 		try {
 			statsDisplayConfig = StatsDisplayConfig
-					.creatStatsDisplayConfigFromJSONObject(o
-							.getJSONObject("StatsDisplayConfig"));
+					.creatStatsDisplayConfigFromJSONObject(o.getJSONObject("StatsDisplayConfig"));
 		} catch (Exception e) {
 		}
 
@@ -447,9 +427,8 @@ public class MainDisplayConfig {
 
 			for (String logDis : JSONObject.getNames(mvo)) {
 				try {
-					logDisplayConfigsArray.add(LogDisplayConfig
-							.createLogDisplayConfigFromJSONObject(mvo
-									.getJSONObject(logDis)));
+					logDisplayConfigsArray
+							.add(LogDisplayConfig.createLogDisplayConfigFromJSONObject(mvo.getJSONObject(logDis)));
 				} catch (Exception e) {
 				}
 			}
@@ -467,15 +446,13 @@ public class MainDisplayConfig {
 			for (String metricVis : JSONObject.getNames(mvo)) {
 				try {
 					metricVisualizerConfigsArray.add(MetricVisualizerConfig
-							.createMetricVisualizerConfigFromJSONObject(mvo
-									.getJSONObject(metricVis)));
+							.createMetricVisualizerConfigFromJSONObject(mvo.getJSONObject(metricVis)));
 				} catch (Exception e) {
 				}
 			}
 		} catch (Exception e) {
 		}
-		metricVisualizerConfigs = new MetricVisualizerConfig[metricVisualizerConfigsArray
-				.size()];
+		metricVisualizerConfigs = new MetricVisualizerConfig[metricVisualizerConfigsArray.size()];
 		for (int i = 0; i < metricVisualizerConfigsArray.size(); i++) {
 			metricVisualizerConfigs[i] = metricVisualizerConfigsArray.get(i);
 		}
@@ -486,20 +463,16 @@ public class MainDisplayConfig {
 			JSONObject mvo = o.getJSONObject("MultiScalarVisualizerConfigs");
 			for (String multiScalarVis : JSONObject.getNames(mvo)) {
 				try {
-					multiScalarVisualizerConfigsArray
-							.add(MultiScalarVisualizerConfig
-									.createMultiScalarVisualizerConfigFromJSONObject(mvo
-											.getJSONObject(multiScalarVis)));
+					multiScalarVisualizerConfigsArray.add(MultiScalarVisualizerConfig
+							.createMultiScalarVisualizerConfigFromJSONObject(mvo.getJSONObject(multiScalarVis)));
 				} catch (Exception e) {
 				}
 			}
 		} catch (Exception e) {
 		}
-		multiScalarVisualizerConfigs = new MultiScalarVisualizerConfig[multiScalarVisualizerConfigsArray
-				.size()];
+		multiScalarVisualizerConfigs = new MultiScalarVisualizerConfig[multiScalarVisualizerConfigsArray.size()];
 		for (int i = 0; i < multiScalarVisualizerConfigsArray.size(); i++) {
-			multiScalarVisualizerConfigs[i] = multiScalarVisualizerConfigsArray
-					.get(i);
+			multiScalarVisualizerConfigs[i] = multiScalarVisualizerConfigsArray.get(i);
 		}
 
 		// gather label visualizer configs
@@ -507,26 +480,24 @@ public class MainDisplayConfig {
 		try {
 			JSONObject mvo = o.getJSONObject("LabelVisualizerConfigs");
 			for (String labelVis : JSONObject.getNames(mvo)) {
+				System.out.println("init labelvis config: " + labelVis);
 				try {
 					labelVisualizerConfigsArray.add(LabelVisualizerConfig
-							.createLabelVisualizerConfigFromJSONObject(mvo
-									.getJSONObject(labelVis)));
+							.createLabelVisualizerConfigFromJSONObject(mvo.getJSONObject(labelVis)));
 				} catch (Exception e) {
+					e.printStackTrace();
 				}
 			}
 		} catch (Exception e) {
 		}
-		labelVisualizerConfigs = new LabelVisualizerConfig[labelVisualizerConfigsArray
-				.size()];
+		labelVisualizerConfigs = new LabelVisualizerConfig[labelVisualizerConfigsArray.size()];
 		for (int i = 0; i < labelVisualizerConfigsArray.size(); i++) {
 			labelVisualizerConfigs[i] = labelVisualizerConfigsArray.get(i);
 		}
 
-		return new MainDisplayConfig(name, size, liveDisplayMode, fullscreen,
-				zipMode, defaultDir, defaultFont, defaultFontColor, buttonSize,
-				logoDir, logoSize, scalingExpression, visualizerPanelSize,
-				innerVisualizerPanelSize, statsDisplayConfig,
-				logDisplayConfigs, metricVisualizerConfigs,
+		return new MainDisplayConfig(name, size, liveDisplayMode, fullscreen, zipMode, defaultDir, defaultFont,
+				defaultFontColor, buttonSize, logoDir, logoSize, scalingExpression, visualizerPanelSize,
+				innerVisualizerPanelSize, statsDisplayConfig, logDisplayConfigs, metricVisualizerConfigs,
 				multiScalarVisualizerConfigs, labelVisualizerConfigs);
 	}
 
@@ -552,8 +523,7 @@ public class MainDisplayConfig {
 			}
 		} else {
 			if (IOUtils.isRunFromJar()) {
-				Log.info("'" + path
-						+ "-> ' not found. Attempting to read from .jar");
+				Log.info("'" + path + "-> ' not found. Attempting to read from .jar");
 				try {
 					jar = IOUtils.getExecutionJarFile();
 					is = IOUtils.getInputStreamFromJar(jar, path, true);
@@ -569,8 +539,7 @@ public class MainDisplayConfig {
 			JSONTokener tk = new JSONTokener(is);
 			JSONObject jsonConfig = new JSONObject(tk);
 			config = MainDisplayConfig
-					.createMainDisplayConfigFromJSONObject(jsonConfig
-							.getJSONObject("MainDisplayConfig"));
+					.createMainDisplayConfigFromJSONObject(jsonConfig.getJSONObject("MainDisplayConfig"));
 
 			try {
 				is.close();
