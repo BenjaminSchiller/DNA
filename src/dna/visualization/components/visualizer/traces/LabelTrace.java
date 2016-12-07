@@ -116,6 +116,7 @@ public class LabelTrace {
 				this.active = true;
 			}
 		} else {
+
 			// label is null
 			if (active) {
 				// move all current traces to removed traces
@@ -170,6 +171,8 @@ public class LabelTrace {
 		this.values.clear();
 		this.minX = this.initTimestamp;
 		this.maxX = this.initTimestamp;
+		this.lastTimestamp = this.initTimestamp;
+		this.active = false;
 	}
 
 	/** Moves all current traces to the removed traces. **/

@@ -363,6 +363,7 @@ public class LabelVisualizer extends Visualizer {
 					this.batchBuffer.removeLast();
 				}
 			}
+
 			// reload data
 			this.reloadData();
 			// this.updateData(b);
@@ -401,7 +402,6 @@ public class LabelVisualizer extends Visualizer {
 
 				if (!updated)
 					labelTrace.update(timestampDouble, null);
-
 			}
 
 			// timestamp adjustmens for x-axis tick calculation
@@ -543,8 +543,9 @@ public class LabelVisualizer extends Visualizer {
 		this.currentTimestamp = 0;
 
 		// clear chart
-		for (ITrace2D t : this.chart.getTraces()) {
-			t.removeAllPoints();
+		for (String name : this.labelTraces.keySet()) {
+			LabelTrace trace = this.labelTraces.get(name);
+			trace.clear();
 		}
 
 		// update with old batches
