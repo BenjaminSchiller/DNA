@@ -126,6 +126,8 @@ public class MetricVisualizer extends Visualizer {
 		this.xAxis1.setAxisTitle(new AxisTitle(config.getx1AxisTitle()));
 		this.yAxis1.setAxisTitle(new AxisTitle(config.getY1AxisTitle()));
 		this.yAxis2.setAxisTitle(new AxisTitle(config.getY2AxisTitle()));
+
+		this.menuBar.setVisible(config.getMenuBarConfig().isVisible());
 	}
 
 	/** handles the ticks that are shown on the x axis **/

@@ -111,6 +111,8 @@ public class LabelVisualizer extends Visualizer {
 
 		// add menu bar
 		super.addMenuBar(config.getMenuBarConfig());
+		this.menuBar.setYCoordsLabelText("v:");
+		this.menuBar.setVisible(config.getMenuBarConfig().isVisible());
 
 		// add coordinate parsing to mouseover on chart
 		this.chart.addMouseMotionListener(new MouseMotionListener() {
@@ -126,9 +128,6 @@ public class LabelVisualizer extends Visualizer {
 			public void mouseDragged(MouseEvent e) {
 			}
 		});
-
-		// change y-coords label text to represent values v
-		this.menuBar.setYCoordsLabelText("v:");
 
 		// apply config
 		this.chart.setPreferredSize(config.getChartSize());

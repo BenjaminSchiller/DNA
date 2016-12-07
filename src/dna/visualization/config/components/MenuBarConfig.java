@@ -11,8 +11,10 @@ import dna.visualization.config.JSON.JSONObject;
 public class MenuBarConfig {
 
 	// constructor
-	public MenuBarConfig(Dimension size, Font coordsFont, Color coordsFontColor, boolean addCoordsPanel,
-			boolean addIntervalPanel, boolean x1AxisConnected, boolean addXOptionsPanel, boolean addYOptionsPanel) {
+	public MenuBarConfig(boolean visible, Dimension size, Font coordsFont, Color coordsFontColor,
+			boolean addCoordsPanel, boolean addIntervalPanel, boolean x1AxisConnected, boolean addXOptionsPanel,
+			boolean addYOptionsPanel) {
+		this.visible = visible;
 		this.size = size;
 		this.coordsFont = coordsFont;
 		this.coordsFontColor = coordsFontColor;
@@ -24,6 +26,7 @@ public class MenuBarConfig {
 	}
 
 	// variables
+	private boolean visible;
 	private Dimension size;
 	private Font coordsFont;
 	private Color coordsFontColor;
@@ -34,6 +37,10 @@ public class MenuBarConfig {
 	private boolean addYOptionsPanel;
 
 	// get methods
+	public boolean isVisible() {
+		return this.visible;
+	}
+
 	public Dimension getSize() {
 		return this.size;
 	}
@@ -73,6 +80,7 @@ public class MenuBarConfig {
 	/** creates a menubar config object from a given json object **/
 	public static MenuBarConfig createMenuBarConfigFromJSONObject(JSONObject o) {
 		// init
+		boolean visible;
 		Dimension size;
 		Font coordsFont;
 		Color coordsFontColor;
@@ -85,6 +93,7 @@ public class MenuBarConfig {
 		// set default values
 		if (MainDisplay.DefaultConfig == null) {
 			// if the defaultconfig is not set, read default values
+			visible = o.getBoolean("visible");
 			size = new Dimension(o.getInt("Width"), o.getInt("Height"));
 			addCoordsPanel = o.getBoolean("showCoordsPanel");
 			addIntervalPanel = o.getBoolean("showIntervalPanel");
@@ -117,11 +126,12 @@ public class MenuBarConfig {
 				coordsFontColor = (Color) field.get(null);
 			} catch (Exception e) {
 			}
-			return new MenuBarConfig(size, coordsFont, coordsFontColor, addCoordsPanel, addIntervalPanel,
+			return new MenuBarConfig(visible, size, coordsFont, coordsFontColor, addCoordsPanel, addIntervalPanel,
 					x1AxisConnected, addXOptionsPanel, addYOptionsPanel);
 		} else {
 			// use default config values as defaults
 			size = MainDisplay.DefaultConfig.getMetricVisualizerConfigs()[0].getMenuBarConfig().getSize();
+			visible = MainDisplay.DefaultConfig.getMetricVisualizerConfigs()[0].getMenuBarConfig().isVisible();
 			addCoordsPanel = MainDisplay.DefaultConfig.getMetricVisualizerConfigs()[0].getMenuBarConfig()
 					.isAddCoordsPanel();
 			addIntervalPanel = MainDisplay.DefaultConfig.getMetricVisualizerConfigs()[0].getMenuBarConfig()
@@ -138,6 +148,11 @@ public class MenuBarConfig {
 		}
 
 		// overwrite default values with parsed values
+		try {
+			visible = o.getBoolean("visible");
+		} catch (Exception e) {
+		}
+
 		try {
 			size = new Dimension(o.getInt("Width"), o.getInt("Height"));
 		} catch (Exception e) {
@@ -193,7 +208,7 @@ public class MenuBarConfig {
 		} catch (Exception e) {
 		}
 
-		return new MenuBarConfig(size, coordsFont, coordsFontColor, addCoordsPanel, addIntervalPanel, x1AxisConnected,
-				addXOptionsPanel, addYOptionsPanel);
+		return new MenuBarConfig(visible, size, coordsFont, coordsFontColor, addCoordsPanel, addIntervalPanel,
+				x1AxisConnected, addXOptionsPanel, addYOptionsPanel);
 	}
 }
