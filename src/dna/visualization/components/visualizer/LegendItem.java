@@ -19,6 +19,7 @@ import javax.swing.border.EtchedBorder;
 
 import dna.visualization.MainDisplay;
 import dna.visualization.config.VisualizerListConfig.yAxisSelection;
+import dna.visualization.config.components.LabelVisualizerConfig;
 import dna.visualization.config.components.MetricVisualizerConfig;
 import dna.visualization.config.components.MultiScalarVisualizerConfig;
 
@@ -76,8 +77,17 @@ public class LegendItem extends JPanel {
 			this.valueLabelSize = config.getLegendItemValueLabelSize();
 			this.valueFont = config.getLegendItemValueFont();
 			this.valueFontColor = config.getLegendItemValueFontColor();
-		} else {
+		} else if (parent.parent.parent instanceof MultiScalarVisualizer) {
 			MultiScalarVisualizerConfig config = ((MultiScalarVisualizer) parent.parent.parent).config;
+			this.buttonPanelSize = config.getLegendItemButtonPanelSize();
+			this.buttonSize = config.getLegendItemButtonSize();
+			this.size = config.getLegendItemSize();
+			this.nameLabelSize = config.getLegendItemNameLabelSize();
+			this.valueLabelSize = config.getLegendItemValueLabelSize();
+			this.valueFont = config.getLegendItemValueFont();
+			this.valueFontColor = config.getLegendItemValueFontColor();
+		} else if (parent.parent.parent instanceof LabelVisualizer) {
+			LabelVisualizerConfig config = ((LabelVisualizer) parent.parent.parent).config;
 			this.buttonPanelSize = config.getLegendItemButtonPanelSize();
 			this.buttonSize = config.getLegendItemButtonSize();
 			this.size = config.getLegendItemSize();
@@ -115,11 +125,9 @@ public class LegendItem extends JPanel {
 		// remove button
 		this.removeButton = new JButton("-");
 		this.removeButton.setFont(MainDisplay.config.getDefaultFont());
-		this.removeButton.setForeground(MainDisplay.config
-				.getDefaultFontColor());
+		this.removeButton.setForeground(MainDisplay.config.getDefaultFontColor());
 		this.removeButton.setPreferredSize(this.buttonSize);
-		this.removeButton
-				.setToolTipText("Removes this value from list and plot.");
+		this.removeButton.setToolTipText("Removes this value from list and plot.");
 		this.removeButton.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent event) {
@@ -127,18 +135,16 @@ public class LegendItem extends JPanel {
 			}
 		});
 		this.removeButton.setMargin(new Insets(0, 0, 0, 0));
-		this.removeButton.setFont(new Font(this.removeButton.getFont()
-				.getName(), this.removeButton.getFont().getStyle(), 17));
+		this.removeButton
+				.setFont(new Font(this.removeButton.getFont().getName(), this.removeButton.getFont().getStyle(), 17));
 
 		// toggle y axis button
 		this.toggleYAxisButton = new JButton("y1");
 		this.toggleYAxisButton.setFont(MainDisplay.config.getDefaultFont());
-		this.toggleYAxisButton.setForeground(MainDisplay.config
-				.getDefaultFontColor());
+		this.toggleYAxisButton.setForeground(MainDisplay.config.getDefaultFontColor());
 		this.toggleYAxisButton.setPreferredSize(this.buttonSize);
 		this.toggleYAxisButton.setMargin(new Insets(0, 0, 0, 0));
-		this.toggleYAxisButton
-				.setToolTipText("Currently plotted on left y-axis (y1). Click to change to right y-axis");
+		this.toggleYAxisButton.setToolTipText("Currently plotted on left y-axis (y1). Click to change to right y-axis");
 		this.toggleYAxisButton.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent event) {
@@ -158,8 +164,7 @@ public class LegendItem extends JPanel {
 		// show/hide button
 		this.showHideButton = new JButton("S");
 		this.showHideButton.setFont(MainDisplay.config.getDefaultFont());
-		this.showHideButton.setForeground(MainDisplay.config
-				.getDefaultFontColor());
+		this.showHideButton.setForeground(MainDisplay.config.getDefaultFontColor());
 		this.showHideButton.setPreferredSize(this.buttonSize);
 		this.showHideButton.setMargin(new Insets(0, 0, 0, 0));
 		this.showHideButton.setToolTipText("Hides this value in the chart");
@@ -168,15 +173,12 @@ public class LegendItem extends JPanel {
 			public void actionPerformed(ActionEvent event) {
 				if (thisItem.showHideButton.getText().equals("H")) {
 					thisItem.showHideButton.setText("S");
-					thisItem.showHideButton.setForeground(MainDisplay.config
-							.getDefaultFontColor());
-					thisItem.showHideButton
-							.setToolTipText("Hides this value in the chart");
+					thisItem.showHideButton.setForeground(MainDisplay.config.getDefaultFontColor());
+					thisItem.showHideButton.setToolTipText("Hides this value in the chart");
 				} else {
 					thisItem.showHideButton.setText("H");
 					thisItem.showHideButton.setForeground(Color.RED);
-					thisItem.showHideButton
-							.setToolTipText("Shows this value in the chart");
+					thisItem.showHideButton.setToolTipText("Shows this value in the chart");
 				}
 				thisItem.parent.toggleVisiblity(thisItem);
 			}
@@ -185,12 +187,10 @@ public class LegendItem extends JPanel {
 		// bar/linespoint button
 		this.displayModeButton = new JButton("L");
 		this.displayModeButton.setFont(MainDisplay.config.getDefaultFont());
-		this.displayModeButton.setForeground(MainDisplay.config
-				.getDefaultFontColor());
+		this.displayModeButton.setForeground(MainDisplay.config.getDefaultFontColor());
 		this.displayModeButton.setPreferredSize(this.buttonSize);
 		this.displayModeButton.setMargin(new Insets(0, 0, 0, 0));
-		this.displayModeButton
-				.setToolTipText("Currently shown as linespoint. Click to change to bars.");
+		this.displayModeButton.setToolTipText("Currently shown as linespoint. Click to change to bars.");
 		this.displayModeButton.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent event) {
@@ -210,8 +210,7 @@ public class LegendItem extends JPanel {
 		// button panel
 		this.buttonPanel = new JPanel();
 		this.buttonPanel.setLayout(new FlowLayout(FlowLayout.RIGHT, 0, 0));
-		this.buttonPanel
-				.setComponentOrientation(ComponentOrientation.RIGHT_TO_LEFT);
+		this.buttonPanel.setComponentOrientation(ComponentOrientation.RIGHT_TO_LEFT);
 		this.buttonPanel.setPreferredSize(this.buttonPanelSize);
 		this.buttonPanel.add(this.removeButton);
 		this.buttonPanel.add(this.showHideButton);
@@ -259,8 +258,7 @@ public class LegendItem extends JPanel {
 	public void setShowHideButton(boolean visible) {
 		if (visible) {
 			this.showHideButton.setText("S");
-			this.showHideButton.setForeground(MainDisplay.config
-					.getDefaultFontColor());
+			this.showHideButton.setForeground(MainDisplay.config.getDefaultFontColor());
 			this.showHideButton.setToolTipText("Hides this value in the chart");
 		} else {
 			this.showHideButton.setText("H");
@@ -273,12 +271,10 @@ public class LegendItem extends JPanel {
 	public void setDisplayModeButton(boolean displayAsLinespoint) {
 		if (displayAsLinespoint) {
 			this.displayModeButton.setText("L");
-			this.displayModeButton
-					.setToolTipText("Currently shown as linespoint. Click to change to bars.");
+			this.displayModeButton.setToolTipText("Currently shown as linespoint. Click to change to bars.");
 		} else {
 			this.displayModeButton.setText("B");
-			this.displayModeButton
-					.setToolTipText("Currently shown as bars. Click to change to linespoint.");
+			this.displayModeButton.setToolTipText("Currently shown as bars. Click to change to linespoint.");
 		}
 	}
 

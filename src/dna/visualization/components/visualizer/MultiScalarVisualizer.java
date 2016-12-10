@@ -1,16 +1,5 @@
 package dna.visualization.components.visualizer;
 
-import info.monitorenter.gui.chart.IAxis;
-import info.monitorenter.gui.chart.IAxis.AxisTitle;
-import info.monitorenter.gui.chart.ITrace2D;
-import info.monitorenter.gui.chart.ITracePainter;
-import info.monitorenter.gui.chart.ITracePoint2D;
-import info.monitorenter.gui.chart.traces.Trace2DSimple;
-import info.monitorenter.gui.chart.traces.painters.TracePainterDisc;
-import info.monitorenter.gui.chart.traces.painters.TracePainterFill;
-import info.monitorenter.gui.chart.traces.painters.TracePainterLine;
-import info.monitorenter.gui.chart.traces.painters.TracePainterVerticalBar;
-
 import java.awt.Color;
 import java.awt.Font;
 import java.awt.event.MouseEvent;
@@ -47,6 +36,16 @@ import dna.visualization.config.VisualizerListConfig.SortModeNVL;
 import dna.visualization.config.VisualizerListConfig.xAxisSelection;
 import dna.visualization.config.VisualizerListConfig.yAxisSelection;
 import dna.visualization.config.components.MultiScalarVisualizerConfig;
+import info.monitorenter.gui.chart.IAxis;
+import info.monitorenter.gui.chart.IAxis.AxisTitle;
+import info.monitorenter.gui.chart.ITrace2D;
+import info.monitorenter.gui.chart.ITracePainter;
+import info.monitorenter.gui.chart.ITracePoint2D;
+import info.monitorenter.gui.chart.traces.Trace2DSimple;
+import info.monitorenter.gui.chart.traces.painters.TracePainterDisc;
+import info.monitorenter.gui.chart.traces.painters.TracePainterFill;
+import info.monitorenter.gui.chart.traces.painters.TracePainterLine;
+import info.monitorenter.gui.chart.traces.painters.TracePainterVerticalBar;
 
 @SuppressWarnings("serial")
 public class MultiScalarVisualizer extends Visualizer {
@@ -73,8 +72,7 @@ public class MultiScalarVisualizer extends Visualizer {
 	private BatchData currentBatch;
 
 	// constructor
-	public MultiScalarVisualizer(MainDisplay mainDisplay,
-			MultiScalarVisualizerConfig config) {
+	public MultiScalarVisualizer(MainDisplay mainDisplay, MultiScalarVisualizerConfig config) {
 		// initialization
 		super(config.getChartSize(), config.getLegendSize());
 		this.config = config;
@@ -99,10 +97,8 @@ public class MultiScalarVisualizer extends Visualizer {
 
 		// set title and border of the visualizer
 		TitledBorder title = BorderFactory.createTitledBorder(config.getName());
-		title.setBorder(BorderFactory
-				.createEtchedBorder((EtchedBorder.LOWERED)));
-		title.setTitleFont(new Font(
-				this.mainDisplay.getDefaultFont().getName(), Font.BOLD,
+		title.setBorder(BorderFactory.createEtchedBorder((EtchedBorder.LOWERED)));
+		title.setTitleFont(new Font(this.mainDisplay.getDefaultFont().getName(), Font.BOLD,
 				this.mainDisplay.getDefaultFont().getSize()));
 		title.setTitleColor(this.mainDisplay.getDefaultFontColor());
 		this.setBorder(title);
@@ -115,11 +111,8 @@ public class MultiScalarVisualizer extends Visualizer {
 			@Override
 			public void mouseMoved(MouseEvent e) {
 				if (chart.getPointFinder().getNearestPoint(e, chart) != null) {
-					ITracePoint2D tempPointFinder = chart.getPointFinder()
-							.getNearestPoint(e, chart);
-					menuBar.updateCoordsPanel(
-							(int) Math.floor(tempPointFinder.getX()),
-							tempPointFinder.getY());
+					ITracePoint2D tempPointFinder = chart.getPointFinder().getNearestPoint(e, chart);
+					menuBar.updateCoordsPanel((int) Math.floor(tempPointFinder.getX()), tempPointFinder.getY());
 				}
 			}
 
@@ -131,6 +124,7 @@ public class MultiScalarVisualizer extends Visualizer {
 		// apply config
 		this.chart.setPreferredSize(config.getChartSize());
 		this.legend.setLegendSize(config.getLegendSize());
+		this.menuBar.setVisible(config.getMenuBarConfig().isVisible());
 		this.xAxisOffset = config.getxAxisOffset();
 
 		this.xAxis1.setAxisTitle(new AxisTitle(config.getx1AxisTitle()));
@@ -158,12 +152,10 @@ public class MultiScalarVisualizer extends Visualizer {
 
 		// gather all available values
 		for (String metric : b.getMetrics().getNames()) {
-			for (String dist : b.getMetrics().get(metric).getDistributions()
-					.getNames()) {
+			for (String dist : b.getMetrics().get(metric).getDistributions().getNames()) {
 				this.availableDistributions.add(metric + "." + dist);
 			}
-			for (String nvl : b.getMetrics().get(metric).getNodeValues()
-					.getNames()) {
+			for (String nvl : b.getMetrics().get(metric).getNodeValues().getNames()) {
 				this.availableNodeValueLists.add(metric + "." + nvl);
 			}
 		}
@@ -199,74 +191,58 @@ public class MultiScalarVisualizer extends Visualizer {
 
 		// add points
 		for (String metric : b.getMetrics().getNames()) {
-			for (String dist : b.getMetrics().get(metric).getDistributions()
-					.getNames()) {
+			for (String dist : b.getMetrics().get(metric).getDistributions().getNames()) {
 				if (this.traces.containsKey(metric + "." + dist)) {
-					Distr<?, ?> tempDist = b.getMetrics().get(metric)
-							.getDistributions().get(dist);
+					Distr<?, ?> tempDist = b.getMetrics().get(metric).getDistributions().get(dist);
 					String tempName = metric + "." + dist;
 
 					DistrType tempType = tempDist.getDistrType();
 
-					SortModeDist tempSortMode = ((LegendItemDistribution) this.legend
-							.getLegendList().getLegendItem(tempName))
-							.getSortMode();
+					SortModeDist tempSortMode = ((LegendItemDistribution) this.legend.getLegendList()
+							.getLegendItem(tempName)).getSortMode();
 
 					switch (tempType) {
 					case BINNED_DOUBLE:
 						BinnedDoubleDistr bdd = (BinnedDoubleDistr) tempDist;
-						this.addLongDistributionTrace(tempName,
-								bdd.getValues(), bdd.getDenominator(),
-								bdd.getBinSize(), tempSortMode,
-								this.getTraceOffsetX(tempName));
+						this.addLongDistributionTrace(tempName, bdd.getValues(), bdd.getDenominator(), bdd.getBinSize(),
+								tempSortMode, this.getTraceOffsetX(tempName));
 						break;
 					case BINNED_INT:
 						BinnedIntDistr bid = (BinnedIntDistr) tempDist;
-						this.addLongDistributionTrace(tempName,
-								bid.getValues(), bid.getDenominator(),
-								bid.getBinSize(), tempSortMode,
-								this.getTraceOffsetX(tempName));
+						this.addLongDistributionTrace(tempName, bid.getValues(), bid.getDenominator(), bid.getBinSize(),
+								tempSortMode, this.getTraceOffsetX(tempName));
 						break;
 					case BINNED_LONG:
 						BinnedLongDistr bld = (BinnedLongDistr) tempDist;
-						this.addLongDistributionTrace(tempName,
-								bld.getValues(), bld.getDenominator(),
-								bld.getBinSize(), tempSortMode,
-								this.getTraceOffsetX(tempName));
+						this.addLongDistributionTrace(tempName, bld.getValues(), bld.getDenominator(), bld.getBinSize(),
+								tempSortMode, this.getTraceOffsetX(tempName));
 						break;
 					case QUALITY_DOUBLE:
 						QualityDoubleDistr qdd = (QualityDoubleDistr) tempDist;
-						this.addDoubleDistributionTrace(tempName,
-								qdd.getValues(), qdd.getBinSize(),
-								tempSortMode, this.getTraceOffsetX(tempName));
+						this.addDoubleDistributionTrace(tempName, qdd.getValues(), qdd.getBinSize(), tempSortMode,
+								this.getTraceOffsetX(tempName));
 						break;
 					case QUALITY_INT:
 						QualityIntDistr qid = (QualityIntDistr) tempDist;
-						this.addDoubleDistributionTrace(tempName,
-								qid.getValues(), qid.getBinSize(),
-								tempSortMode, this.getTraceOffsetX(tempName));
+						this.addDoubleDistributionTrace(tempName, qid.getValues(), qid.getBinSize(), tempSortMode,
+								this.getTraceOffsetX(tempName));
 						break;
 					case QUALITY_LONG:
 						QualityLongDistr qld = (QualityLongDistr) tempDist;
-						this.addDoubleDistributionTrace(tempName,
-								qld.getValues(), qld.getBinSize(),
-								tempSortMode, this.getTraceOffsetX(tempName));
+						this.addDoubleDistributionTrace(tempName, qld.getValues(), qld.getBinSize(), tempSortMode,
+								this.getTraceOffsetX(tempName));
 						break;
 					}
 				}
 			}
-			for (String nvl : b.getMetrics().get(metric).getNodeValues()
-					.getNames()) {
+			for (String nvl : b.getMetrics().get(metric).getNodeValues().getNames()) {
 				String tempName = metric + "." + nvl;
 				if (this.traces.containsKey(tempName)) {
-					SortModeNVL tempSortMode = ((LegendItemNodeValueList) this.legend
-							.getLegendList().getLegendItem(tempName))
-							.getSortMode();
-					double[] tempValues = b.getMetrics().get(metric)
-							.getNodeValues().get(nvl).getValues();
+					SortModeNVL tempSortMode = ((LegendItemNodeValueList) this.legend.getLegendList()
+							.getLegendItem(tempName)).getSortMode();
+					double[] tempValues = b.getMetrics().get(metric).getNodeValues().get(nvl).getValues();
 					this.doubleValues.put(tempName, tempValues);
-					this.addPoints(metric + "." + nvl, tempValues,
-							tempSortMode, this.getTraceOffsetX(tempName));
+					this.addPoints(metric + "." + nvl, tempValues, tempSortMode, this.getTraceOffsetX(tempName));
 				}
 			}
 		}
@@ -275,8 +251,8 @@ public class MultiScalarVisualizer extends Visualizer {
 	}
 
 	/** adds points sorted and normalized by dividing through denominator **/
-	private void addDistributionPoints(String name, long[] values,
-			long denominator, double binsize, SortModeDist sort, double offsetX) {
+	private void addDistributionPoints(String name, long[] values, long denominator, double binsize, SortModeDist sort,
+			double offsetX) {
 		ITrace2D tempTrace = this.traces.get(name);
 		long[] tempValues = new long[values.length];
 
@@ -291,8 +267,7 @@ public class MultiScalarVisualizer extends Visualizer {
 			break;
 		case distribution:
 			for (int i = 0; i < values.length; i++) {
-				tempTrace.addPoint(i * binsize + offsetX, (1.0 * values[i])
-						/ denominator);
+				tempTrace.addPoint(i * binsize + offsetX, (1.0 * values[i]) / denominator);
 			}
 			break;
 		}
@@ -304,8 +279,8 @@ public class MultiScalarVisualizer extends Visualizer {
 	}
 
 	/** adds points sorted and normalized by dividing through denominator **/
-	private void addDistributionPoints(String name, double[] values,
-			double binsize, SortModeDist sort, double offsetX) {
+	private void addDistributionPoints(String name, double[] values, double binsize, SortModeDist sort,
+			double offsetX) {
 		ITrace2D tempTrace = this.traces.get(name);
 		double[] tempValues = new double[values.length];
 
@@ -332,8 +307,7 @@ public class MultiScalarVisualizer extends Visualizer {
 	}
 
 	/** adds points sorted **/
-	private void addPoints(String name, double[] values, SortModeNVL sort,
-			double offsetX) {
+	private void addPoints(String name, double[] values, SortModeNVL sort, double offsetX) {
 		ITrace2D tempTrace = this.traces.get(name);
 		double[] tempValues = new double[values.length];
 		int tempIndex = 0;
@@ -365,8 +339,7 @@ public class MultiScalarVisualizer extends Visualizer {
 				else
 					break;
 			}
-			for (int i = 0, j = tempValues.length - 1; i < tempValues.length
-					- tempIndex; i++) {
+			for (int i = 0, j = tempValues.length - 1; i < tempValues.length - tempIndex; i++) {
 				tempTrace.addPoint(j - (i + tempIndex), tempValues[i]);
 			}
 			break;
@@ -394,8 +367,7 @@ public class MultiScalarVisualizer extends Visualizer {
 	}
 
 	/** adds trace to the visualizer **/
-	public void addTrace(String name, Color color, xAxisSelection xAxis,
-			yAxisSelection yAxis) {
+	public void addTrace(String name, Color color, xAxisSelection xAxis, yAxisSelection yAxis) {
 		Trace2DSimple newTrace = new Trace2DSimple();
 		newTrace.setColor(color);
 		this.traces.put(name, newTrace);
@@ -410,15 +382,13 @@ public class MultiScalarVisualizer extends Visualizer {
 			this.yAxis2.addTrace(newTrace);
 
 		if (config.isPaintLinesPoint())
-			newTrace.addTracePainter(new TracePainterDisc(config
-					.getLinesPointSize()));
+			newTrace.addTracePainter(new TracePainterDisc(config.getLinesPointSize()));
 		if (config.isPaintFill())
 			newTrace.addTracePainter(new TracePainterFill(this.chart));
 	}
 
 	/** adds trace of a distribution and its points to the visualizer **/
-	public void addDistributionTrace(String name, Color color,
-			xAxisSelection xAxis, yAxisSelection yAxis) {
+	public void addDistributionTrace(String name, Color color, xAxisSelection xAxis, yAxisSelection yAxis) {
 		// calculate offset
 		double offsetX = this.calculateOffsetX(name, xAxis);
 
@@ -431,55 +401,46 @@ public class MultiScalarVisualizer extends Visualizer {
 		// get sort mode
 		SortModeDist tempSortMode = SortModeDist.distribution;
 		if (config.getListConfig() != null) {
-			tempSortMode = config.getListConfig().getAllDistributionsConfig()
-					.getSortMode();
+			tempSortMode = config.getListConfig().getAllDistributionsConfig().getSortMode();
 		}
 
 		// add points to chart
 		for (String metric : this.currentBatch.getMetrics().getNames()) {
-			for (String dist : this.currentBatch.getMetrics().get(metric)
-					.getDistributions().getNames()) {
+			for (String dist : this.currentBatch.getMetrics().get(metric).getDistributions().getNames()) {
 				if ((metric + "." + dist).equals(name)) {
-					Distr<?, ?> tempDist = this.currentBatch.getMetrics()
-							.get(metric).getDistributions().get(dist);
+					Distr<?, ?> tempDist = this.currentBatch.getMetrics().get(metric).getDistributions().get(dist);
 					String tempName = metric + "." + dist;
 
 					switch (tempDist.getDistrType()) {
 					case BINNED_DOUBLE:
 						BinnedDoubleDistr bdd = (BinnedDoubleDistr) tempDist;
-						this.addLongDistributionTrace(tempName,
-								bdd.getValues(), bdd.getDenominator(),
-								bdd.getBinSize(), tempSortMode, offsetX);
+						this.addLongDistributionTrace(tempName, bdd.getValues(), bdd.getDenominator(), bdd.getBinSize(),
+								tempSortMode, offsetX);
 						break;
 					case BINNED_INT:
 						BinnedIntDistr bid = (BinnedIntDistr) tempDist;
-						this.addLongDistributionTrace(tempName,
-								bid.getValues(), bid.getDenominator(),
-								bid.getBinSize(), tempSortMode, offsetX);
+						this.addLongDistributionTrace(tempName, bid.getValues(), bid.getDenominator(), bid.getBinSize(),
+								tempSortMode, offsetX);
 						break;
 					case BINNED_LONG:
 						BinnedLongDistr bld = (BinnedLongDistr) tempDist;
-						this.addLongDistributionTrace(tempName,
-								bld.getValues(), bld.getDenominator(),
-								bld.getBinSize(), tempSortMode, offsetX);
+						this.addLongDistributionTrace(tempName, bld.getValues(), bld.getDenominator(), bld.getBinSize(),
+								tempSortMode, offsetX);
 						break;
 					case QUALITY_DOUBLE:
 						QualityDoubleDistr qdd = (QualityDoubleDistr) tempDist;
-						this.addDoubleDistributionTrace(tempName,
-								qdd.getValues(), qdd.getBinSize(),
-								tempSortMode, offsetX);
+						this.addDoubleDistributionTrace(tempName, qdd.getValues(), qdd.getBinSize(), tempSortMode,
+								offsetX);
 						break;
 					case QUALITY_INT:
 						QualityIntDistr qid = (QualityIntDistr) tempDist;
-						this.addDoubleDistributionTrace(tempName,
-								qid.getValues(), qid.getBinSize(),
-								tempSortMode, offsetX);
+						this.addDoubleDistributionTrace(tempName, qid.getValues(), qid.getBinSize(), tempSortMode,
+								offsetX);
 						break;
 					case QUALITY_LONG:
 						QualityLongDistr qld = (QualityLongDistr) tempDist;
-						this.addDoubleDistributionTrace(tempName,
-								qld.getValues(), qld.getBinSize(),
-								tempSortMode, offsetX);
+						this.addDoubleDistributionTrace(tempName, qld.getValues(), qld.getBinSize(), tempSortMode,
+								offsetX);
 						break;
 					}
 				}
@@ -490,28 +451,25 @@ public class MultiScalarVisualizer extends Visualizer {
 	}
 
 	/** adds trace of a double distribution and its points to the visualizer **/
-	private void addDoubleDistributionTrace(String name, double[] values,
-			double binsize, SortModeDist tempSortMode, double offsetX) {
+	private void addDoubleDistributionTrace(String name, double[] values, double binsize, SortModeDist tempSortMode,
+			double offsetX) {
 		this.doubleValues.put(name, values);
 		this.binSizes.put(name, binsize);
 		this.addDistributionPoints(name, values, binsize, tempSortMode, offsetX);
 	}
 
 	/** adds trace of a long distribution and its points to the visualizer **/
-	private void addLongDistributionTrace(String name, long[] values,
-			long denominator, double binsize, SortModeDist tempSortMode,
-			double offsetX) {
+	private void addLongDistributionTrace(String name, long[] values, long denominator, double binsize,
+			SortModeDist tempSortMode, double offsetX) {
 		this.longValues.put(name, values);
 		this.longDenominators.put(name, denominator);
 		this.binSizes.put(name, binsize);
-		this.addDistributionPoints(name, values, denominator, binsize,
-				tempSortMode, offsetX);
+		this.addDistributionPoints(name, values, denominator, binsize, tempSortMode, offsetX);
 		this.legend.updateItem(name, denominator);
 	}
 
 	/** adds trace of a nodevaluelist and its points to the visualizer **/
-	public void addNodeValueListTrace(String name, Color color,
-			xAxisSelection xAxis, yAxisSelection yAxis) {
+	public void addNodeValueListTrace(String name, Color color, xAxisSelection xAxis, yAxisSelection yAxis) {
 		// calculate offset
 		double offsetX = this.calculateOffsetX(name, xAxis);
 
@@ -523,19 +481,16 @@ public class MultiScalarVisualizer extends Visualizer {
 
 		// add points to chart
 		for (String metric : this.currentBatch.getMetrics().getNames()) {
-			for (String nvl : this.currentBatch.getMetrics().get(metric)
-					.getNodeValues().getNames()) {
+			for (String nvl : this.currentBatch.getMetrics().get(metric).getNodeValues().getNames()) {
 				String tempName = metric + "." + nvl;
 				if (this.traces.containsKey(tempName)) {
-					SortModeNVL tempSortMode = ((LegendItemNodeValueList) this.legend
-							.getLegendList().getLegendItem(tempName))
-							.getSortMode();
-					double[] tempValues = this.currentBatch.getMetrics()
-							.get(metric).getNodeValues().get(nvl).getValues();
+					SortModeNVL tempSortMode = ((LegendItemNodeValueList) this.legend.getLegendList()
+							.getLegendItem(tempName)).getSortMode();
+					double[] tempValues = this.currentBatch.getMetrics().get(metric).getNodeValues().get(nvl)
+							.getValues();
 
 					this.doubleValues.put(tempName, tempValues);
-					this.addPoints(metric + "." + nvl, tempValues,
-							tempSortMode, offsetX);
+					this.addPoints(metric + "." + nvl, tempValues, tempSortMode, offsetX);
 				}
 			}
 		}
@@ -723,17 +678,12 @@ public class MultiScalarVisualizer extends Visualizer {
 	/** toggles the x axis for a trace identified by its name **/
 	public void toggleXAxis(String name) {
 		if (this.traces.containsKey(name)) {
-			if (this.chart.getAxesXBottom().get(0).getTraces()
-					.contains(this.traces.get(name))) {
-				this.chart.getAxesXBottom().get(0)
-						.removeTrace(this.traces.get(name));
-				this.chart.getAxesXBottom().get(1)
-						.addTrace(this.traces.get(name));
+			if (this.chart.getAxesXBottom().get(0).getTraces().contains(this.traces.get(name))) {
+				this.chart.getAxesXBottom().get(0).removeTrace(this.traces.get(name));
+				this.chart.getAxesXBottom().get(1).addTrace(this.traces.get(name));
 			} else {
-				this.chart.getAxesXBottom().get(1)
-						.removeTrace(this.traces.get(name));
-				this.chart.getAxesXBottom().get(0)
-						.addTrace(this.traces.get(name));
+				this.chart.getAxesXBottom().get(1).removeTrace(this.traces.get(name));
+				this.chart.getAxesXBottom().get(0).addTrace(this.traces.get(name));
 			}
 			this.toggleXAxisVisibility();
 			this.updateTicks();
@@ -761,13 +711,11 @@ public class MultiScalarVisualizer extends Visualizer {
 					verticalBar = true;
 			}
 			if (verticalBar) {
-				trace.setTracePainter(new TracePainterDisc(config
-						.getLinesPointSize()));
+				trace.setTracePainter(new TracePainterDisc(config.getLinesPointSize()));
 				trace.addTracePainter(new TracePainterLine());
 			} else {
 
-				trace.setTracePainter(new TracePainterVerticalBar(config
-						.getVerticalBarSize(), this.chart));
+				trace.setTracePainter(new TracePainterVerticalBar(config.getVerticalBarSize(), this.chart));
 			}
 		}
 	}
@@ -810,11 +758,9 @@ public class MultiScalarVisualizer extends Visualizer {
 			double offsetX = 0;
 
 			if (this.doubleValues.containsKey(name)) {
-				this.addDistributionPoints(name, this.doubleValues.get(name),
-						this.binSizes.get(name), s, offsetX);
+				this.addDistributionPoints(name, this.doubleValues.get(name), this.binSizes.get(name), s, offsetX);
 			} else if (this.longValues.containsKey(name)) {
-				this.addDistributionPoints(name, this.longValues.get(name),
-						this.longDenominators.get(name),
+				this.addDistributionPoints(name, this.longValues.get(name), this.longDenominators.get(name),
 						this.binSizes.get(name), s, offsetX);
 			}
 		}
@@ -828,14 +774,12 @@ public class MultiScalarVisualizer extends Visualizer {
 		// add single configs to lists
 		for (ConfigItem c : config.getEntries()) {
 			if (c instanceof MultiScalarDistributionItem) {
-				if (this.availableDistributions.contains(c.getName())
-						&& c.getOrderId() >= -1) {
+				if (this.availableDistributions.contains(c.getName()) && c.getOrderId() >= -1) {
 					configsList.add(c);
 				}
 			}
 			if (c instanceof MultiScalarNodeValueListItem) {
-				if (this.availableNodeValueLists.contains(c.getName())
-						&& c.getOrderId() >= -1) {
+				if (this.availableNodeValueLists.contains(c.getName()) && c.getOrderId() >= -1) {
 					configsList.add(c);
 				}
 			}
@@ -845,21 +789,18 @@ public class MultiScalarVisualizer extends Visualizer {
 		MultiScalarVisualizer.addGeneralConfigs(configsList, config);
 
 		// craft names list to use as a blacklist for general configs later
-		ArrayList<String> configsNamesList = new ArrayList<String>(
-				configsList.size());
+		ArrayList<String> configsNamesList = new ArrayList<String>(configsList.size());
 		for (ConfigItem c : configsList)
 			configsNamesList.add(c.getName());
 
 		// convert list to array
-		ConfigItem[] configsArray = configsList
-				.toArray(new ConfigItem[configsList.size()]);
+		ConfigItem[] configsArray = configsList.toArray(new ConfigItem[configsList.size()]);
 
 		// sort array with insertion sort
 		for (int i = 1; i < configsArray.length; i++) {
 			ConfigItem single = configsArray[i];
 			int j = i;
-			while (j > 0
-					&& configsArray[j - 1].getOrderId() > single.getOrderId()) {
+			while (j > 0 && configsArray[j - 1].getOrderId() > single.getOrderId()) {
 				configsArray[j] = configsArray[j - 1];
 				j--;
 			}
@@ -869,19 +810,16 @@ public class MultiScalarVisualizer extends Visualizer {
 
 		// calculate "breakpoint" in sorted list: where does -1 end?
 		int breakpoint = 0;
-		for (int i = 0; i < configsArray.length
-				&& configsArray[i].getOrderId() < 0; i++)
+		for (int i = 0; i < configsArray.length && configsArray[i].getOrderId() < 0; i++)
 			breakpoint = i + 1;
 
 		// first insert items with id > -1, then those with -1
-		this.insertForId(breakpoint, configsArray.length, configsNamesList,
-				configsArray, config);
+		this.insertForId(breakpoint, configsArray.length, configsNamesList, configsArray, config);
 		this.insertForId(0, breakpoint, configsNamesList, configsArray, config);
 	}
 
 	/** Inserts items from the configs array to the legend. **/
-	private void insertForId(int from, int to,
-			ArrayList<String> configsNamesList, ConfigItem[] configsArray,
+	private void insertForId(int from, int to, ArrayList<String> configsNamesList, ConfigItem[] configsArray,
 			VisualizerListConfig config) {
 		for (int i = from; i < to; i++) {
 			ConfigItem item = configsArray[i];
@@ -901,13 +839,11 @@ public class MultiScalarVisualizer extends Visualizer {
 			default:
 				if (item instanceof MultiScalarDistributionItem) {
 					if (this.availableDistributions.contains(item.getName()))
-						this.legend
-								.addDistributionItemToList((MultiScalarDistributionItem) item);
+						this.legend.addDistributionItemToList((MultiScalarDistributionItem) item);
 				}
 				if (item instanceof MultiScalarNodeValueListItem) {
 					if (this.availableNodeValueLists.contains(item.getName()))
-						this.legend
-								.addNodeValueListItemToList((MultiScalarNodeValueListItem) item);
+						this.legend.addNodeValueListItemToList((MultiScalarNodeValueListItem) item);
 				}
 				break;
 			}
@@ -915,45 +851,34 @@ public class MultiScalarVisualizer extends Visualizer {
 	}
 
 	/** Adds all set general configs to the list. **/
-	private static void addGeneralConfigs(ArrayList<ConfigItem> configs,
-			VisualizerListConfig config) {
+	private static void addGeneralConfigs(ArrayList<ConfigItem> configs, VisualizerListConfig config) {
 		if (config.isAnyGeneralConfigSet()) {
-			if (config.getAllDistributionsConfig() != null
-					&& config.getAllDistributionsConfig().getOrderId() >= -1)
+			if (config.getAllDistributionsConfig() != null && config.getAllDistributionsConfig().getOrderId() >= -1)
 				configs.add(config.getAllDistributionsConfig());
 
-			if (config.getAllNodeValueListsConfig() != null
-					&& config.getAllNodeValueListsConfig().getOrderId() >= -1)
+			if (config.getAllNodeValueListsConfig() != null && config.getAllNodeValueListsConfig().getOrderId() >= -1)
 				configs.add(config.getAllNodeValueListsConfig());
 		}
 	}
 
 	/** Insert all available distributions. **/
-	private void insertDistributions(VisualizerListConfig config,
-			ArrayList<String> blackList) {
+	private void insertDistributions(VisualizerListConfig config, ArrayList<String> blackList) {
 		MultiScalarDistributionItem c = config.getAllDistributionsConfig();
 		for (String dist : this.availableDistributions) {
 			if (!blackList.contains(dist)) {
-				this.legend
-						.addDistributionItemToList(new MultiScalarDistributionItem(
-								dist, c.getSortMode(), c.getXAxis(), c
-										.getYAxis(), c.getDisplayMode(), c
-										.getVisibility()));
+				this.legend.addDistributionItemToList(new MultiScalarDistributionItem(dist, c.getSortMode(),
+						c.getXAxis(), c.getYAxis(), c.getDisplayMode(), c.getVisibility()));
 			}
 		}
 	}
 
 	/** Insert all available nodevaluelists. **/
-	private void insertNodeValueLists(VisualizerListConfig config,
-			ArrayList<String> blackList) {
+	private void insertNodeValueLists(VisualizerListConfig config, ArrayList<String> blackList) {
 		MultiScalarNodeValueListItem c = config.getAllNodeValueListsConfig();
 		for (String nvl : this.availableNodeValueLists) {
 			if (!blackList.contains(nvl)) {
-				this.legend
-						.addNodeValueListItemToList(new MultiScalarNodeValueListItem(
-								nvl, c.getSortMode(), c.getXAxis(), c
-										.getYAxis(), c.getDisplayMode(), c
-										.getVisibility()));
+				this.legend.addNodeValueListItemToList(new MultiScalarNodeValueListItem(nvl, c.getSortMode(),
+						c.getXAxis(), c.getYAxis(), c.getDisplayMode(), c.getVisibility()));
 			}
 		}
 	}
@@ -977,12 +902,10 @@ public class MultiScalarVisualizer extends Visualizer {
 		// gather used offsets
 		List<Double> usedOffsets = new ArrayList<Double>();
 		for (ITrace2D trace : this.offsets.keySet()) {
-			if (this.xAxis1.containsTrace(trace)
-					&& axis.equals(xAxisSelection.x1)) {
+			if (this.xAxis1.containsTrace(trace) && axis.equals(xAxisSelection.x1)) {
 				usedOffsets.add(this.offsets.get(trace));
 			}
-			if (this.xAxis2.containsTrace(trace)
-					&& axis.equals(xAxisSelection.x2)) {
+			if (this.xAxis2.containsTrace(trace) && axis.equals(xAxisSelection.x2)) {
 				usedOffsets.add(this.offsets.get(trace));
 			}
 		}
@@ -1009,8 +932,7 @@ public class MultiScalarVisualizer extends Visualizer {
 		for (ITrace2D trace : this.offsets.keySet()) {
 			if (this.xAxis1.containsTrace(trace))
 				if (this.offsets.get(trace) != 0)
-					this.offsets.put(trace, this.offsets.get(trace)
-							- this.xAxisOffset);
+					this.offsets.put(trace, this.offsets.get(trace) - this.xAxisOffset);
 		}
 	}
 
@@ -1019,8 +941,7 @@ public class MultiScalarVisualizer extends Visualizer {
 		for (ITrace2D trace : this.offsets.keySet()) {
 			if (this.xAxis2.containsTrace(trace))
 				if (this.offsets.get(trace) != 0)
-					this.offsets.put(trace, this.offsets.get(trace)
-							- this.xAxisOffset);
+					this.offsets.put(trace, this.offsets.get(trace) - this.xAxisOffset);
 		}
 	}
 }
