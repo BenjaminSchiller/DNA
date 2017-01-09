@@ -225,6 +225,16 @@ public class ModelWrapper {
 			String[] splits = name.split(metricValueDelimiter);
 			this.metric = splits[0];
 			this.value = splits[1];
+
+			// fix edge-weights name
+			if (metric.startsWith("EdgeWeights")) {
+				String[] splits2 = metric.split("-");
+				metric = metric + "-" + splits2[splits2.length - 1];
+			}
+
+			// old feature lists may contain "_MED" as value definition
+			if (value.endsWith("_MED"))
+				value = value.replace("_MED", "_50p");
 		}
 
 		public String getName() {
@@ -244,6 +254,7 @@ public class ModelWrapper {
 		}
 
 		public double obtainValueFromBatch(BatchData b) {
+			// System.out.println("getting value: " + metric + " ~ " + value);
 			if (metric.equals("statistics")) {
 				return b.getValues().get(value).getValue();
 			} else {
