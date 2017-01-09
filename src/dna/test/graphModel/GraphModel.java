@@ -7,19 +7,26 @@ import dna.util.network.NetflowAnalysis.EdgeWeightValue;
 import dna.util.network.NetflowAnalysis.NodeWeightValue;
 
 public class GraphModel {
+
+	protected String name;
 	protected NetflowEventField[][] edges;
 	protected NetflowDirection[] edgeDirections;
 	protected EdgeWeightValue[] edgeWeights;
 	protected NodeWeightValue[] nodeWeights;
 	protected Metric[] metrics;
 
-	public GraphModel(NetflowEventField[][] edges, NetflowDirection[] edgeDirections, EdgeWeightValue[] edgeWeights,
-			NodeWeightValue[] nodeWeights, Metric[] metrics) {
+	public GraphModel(String name, NetflowEventField[][] edges, NetflowDirection[] edgeDirections,
+			EdgeWeightValue[] edgeWeights, NodeWeightValue[] nodeWeights, Metric[] metrics) {
+		this.name = name;
 		this.edges = edges;
 		this.edgeDirections = edgeDirections;
 		this.edgeWeights = edgeWeights;
 		this.nodeWeights = nodeWeights;
 		this.metrics = metrics;
+	}
+
+	public String getName() {
+		return name;
 	}
 
 	public NetflowEventField[][] getEdges() {

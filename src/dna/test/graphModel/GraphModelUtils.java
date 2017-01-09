@@ -165,13 +165,13 @@ public class GraphModelUtils {
 			new EdgeWeightsMultiU(1, 1.0), new EdgeWeightsMultiU(2, 1000.0) };
 
 	/** GRAPH MODELS **/
-	public static final GraphModel model0 = new GraphModel(m0Edges, m0Directions, m0EdgeWeights, m0NodeWeights,
+	public static final GraphModel model0 = new GraphModel("m0", m0Edges, m0Directions, m0EdgeWeights, m0NodeWeights,
 			m0AllMetrics);
-	public static final GraphModel model1 = new GraphModel(m1Edges, m1Directions, m1EdgeWeights, m1NodeWeights,
+	public static final GraphModel model1 = new GraphModel("m1", m1Edges, m1Directions, m1EdgeWeights, m1NodeWeights,
 			m1allMetrics);
-	public static final GraphModel model2 = new GraphModel(m2Edges, m2Directions, m2EdgeWeights, m2NodeWeights,
+	public static final GraphModel model2 = new GraphModel("m2", m2Edges, m2Directions, m2EdgeWeights, m2NodeWeights,
 			m2allMetrics);
-	public static final GraphModel model3 = new GraphModel(m3Edges, m3Directions, m3EdgeWeights, m3NodeWeights,
+	public static final GraphModel model3 = new GraphModel("m3", m3Edges, m3Directions, m3EdgeWeights, m3NodeWeights,
 			m3allMetrics);
 
 }
