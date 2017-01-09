@@ -11,7 +11,7 @@ import dna.metrics.IMetric;
 import dna.series.data.BatchData;
 import dna.updates.batch.Batch;
 import dna.updates.generators.BatchGenerator;
-import dna.util.machineLearning.BlackboxWrapper;
+import dna.util.machineLearning.ModelWrapper;
 
 /**
  * The ModelLabeler labels a batch based on a trained machine-learning model.
@@ -21,14 +21,14 @@ import dna.util.machineLearning.BlackboxWrapper;
  */
 public class ModelLabeler extends Labeler {
 
-	protected BlackboxWrapper model;
+	protected ModelWrapper model;
 
 	public ModelLabeler(String name, String scriptPath, String featureListPath, int numberOfFeatures,
 			String modelPath) {
 		super(name);
 
 		try {
-			this.model = new BlackboxWrapper(scriptPath, featureListPath, numberOfFeatures, modelPath);
+			this.model = new ModelWrapper(scriptPath, featureListPath, numberOfFeatures, modelPath);
 		} catch (IOException | InterruptedException e) {
 			e.printStackTrace();
 		}

@@ -19,7 +19,7 @@ import dna.series.lists.BatchDataList;
 import dna.test.Test.LabelMode;
 import dna.util.Log;
 
-public class BlackboxWrapper {
+public class ModelWrapper {
 
 	public class LabelEntry {
 		protected String attackClass;
@@ -279,12 +279,12 @@ public class BlackboxWrapper {
 	protected TruthLabeler truthLabeler;
 
 	// constructor
-	public BlackboxWrapper(String scriptPath, String featureListPath, int numberOfFeatures, String blackboxPath)
+	public ModelWrapper(String scriptPath, String featureListPath, int numberOfFeatures, String blackboxPath)
 			throws IOException, InterruptedException {
 		this(scriptPath, featureListPath, numberOfFeatures, blackboxPath, null);
 	}
 
-	public BlackboxWrapper(String scriptPath, String featureListPath, int numberOfFeatures, String blackboxPath,
+	public ModelWrapper(String scriptPath, String featureListPath, int numberOfFeatures, String blackboxPath,
 			String truthListPath) throws IOException, InterruptedException {
 		Log.info("setting up blackbox wrapper");
 		Log.info("");
