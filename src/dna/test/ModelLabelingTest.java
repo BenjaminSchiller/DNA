@@ -53,13 +53,15 @@ public class ModelLabelingTest {
 		int week = 2;
 		int day = 1;
 
-		String srcDir = "/home/chibo/data/datasets/darpa1998/";
+		String homeDir = "/home/chibo/";
+
+		String srcDir = homeDir + "data/datasets/darpa1998/";
 		String srcFilename = week + "_" + day + ".netflow";
 
-		String dstDir = "/home/chibo/tests/data/";
+		String dstDir = homeDir + "tests/data/";
 		String name = "blub";
 
-		String attackListPath = "/home/chibo/data/lists/darpa1998/" + week + "_" + day + ".labels";
+		String attackListPath = homeDir + "data/lists/darpa1998/" + week + "_" + day + ".labels";
 
 		// model settings
 		int batchLengthSeconds = 1;
@@ -69,25 +71,33 @@ public class ModelLabelingTest {
 		DateTime from = getDateTime(week, day, "07:55:00");
 		DateTime to = getDateTime(week, day, "08:10:00");
 
+		String labelMode = "2";
+		int numberOfFeatures = 200;
+
+		String modelPath = homeDir + "q-data/models/darpa1998/train/" + week + "_" + day + "_" + model.getName() + "_f"
+				+ numberOfFeatures + "_l" + labelMode + ".svm";
+
+		Labeler[] labeler = new Labeler[] {};
+
 		SeriesData sd = generate(srcDir, srcFilename, dstDir, name, batchLengthSeconds, edgeLifeTimeSeconds, from, to,
-				model, attackListPath, enableVis);
+				model, attackListPath, enableVis, labeler);
 	}
 
 	public static SeriesData generate(String srcDir, String srcFilename, String dstDir, String name,
 			int batchLengthSeconds, int edgeLifeTimeSeconds, DateTime from, DateTime to, GraphModel model,
-			String attackListPath, boolean enableVis) throws IOException, ParseException, AggregationException,
-			MetricNotApplicableException, LabelerNotApplicableException {
+			String attackListPath, boolean enableVis, Labeler[] labeler) throws IOException, ParseException,
+			AggregationException, MetricNotApplicableException, LabelerNotApplicableException {
 		return generate(srcDir, srcFilename, dstDir, srcFilename, batchLengthSeconds, dataOffsetSeconds,
 				edgeLifeTimeSeconds, from, to, attackListPath, enableVis, model.getMetrics(), model.getEdges(),
-				model.getEdgeDirections(), model.getEdgeWeights(), model.getNodeWeights());
+				model.getEdgeDirections(), model.getEdgeWeights(), model.getNodeWeights(), labeler);
 
 	}
 
 	public static SeriesData generate(String srcDir, String srcFilename, String dstDir, String name,
 			int batchLengthSeconds, int dataOffsetSeconds, int edgeLifeTimeSeconds, DateTime from, DateTime to,
 			String attackListPath, boolean enableVis, Metric[] metrics, NetflowEventField[][] edges,
-			NetflowDirection[] edgeDirections, EdgeWeightValue[] edgeWeights, NodeWeightValue[] nodeWeights)
-			throws IOException, ParseException, AggregationException, MetricNotApplicableException,
+			NetflowDirection[] edgeDirections, EdgeWeightValue[] edgeWeights, NodeWeightValue[] nodeWeights,
+			Labeler[] labeler) throws IOException, ParseException, AggregationException, MetricNotApplicableException,
 			LabelerNotApplicableException {
 		// vis
 		Config.overwrite("GRAPH_VIS_SHOW_NODE_WEIGHTS", "true");
@@ -146,7 +156,7 @@ public class ModelLabelingTest {
 		NetworkNodeKeyLabel.netflowBatchGenerator = (NetflowBatch) bg;
 
 		// init Labeler
-		Labeler[] labeler = new Labeler[0];
+		// Labeler[] labeler = new Labeler[0];
 		// if (attackListPath != null && !attackListPath.equals("null"))
 		// labeler = new Labeler[] { new DarpaAttackLabeler(attackListPath, "")
 		// };
