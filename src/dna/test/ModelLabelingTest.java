@@ -21,6 +21,7 @@ import dna.io.network.netflow.NetflowEventReader;
 import dna.io.network.netflow.darpa.DarpaNetflowReader;
 import dna.labels.labeler.Labeler;
 import dna.labels.labeler.LabelerNotApplicableException;
+import dna.labels.labeler.models.ModelLabeler;
 import dna.metrics.Metric;
 import dna.metrics.MetricNotApplicableException;
 import dna.series.AggregationException;
@@ -74,10 +75,14 @@ public class ModelLabelingTest {
 		String labelMode = "2";
 		int numberOfFeatures = 200;
 
-		String modelPath = homeDir + "q-data/models/darpa1998/train/" + week + "_" + day + "_" + model.getName() + "_f"
+		String scriptPath = homeDir + "customscripts/wrapper/blackbox_java_wrapper.py";
+		String featureListPath = homeDir + "data/features/darpa1998/train/ranking/" + week + "_" + day + "/"
+				+ batchLengthSeconds + "_" + edgeLifeTimeSeconds + "_" + model.getName() + "_l" + labelMode + ".lasso";
+		String modelPath = homeDir + "q-data/models/darpa1998/train/" + week + "_" + day + "/" + batchLengthSeconds + "_" + edgeLifeTimeSeconds + "_"+  model.getName() + "_f"
 				+ numberOfFeatures + "_l" + labelMode + ".svm";
 
-		Labeler[] labeler = new Labeler[] {};
+		Labeler[] labeler = new Labeler[] {
+				new ModelLabeler("ModelLabeler", scriptPath, featureListPath, numberOfFeatures, modelPath) };
 
 		SeriesData sd = generate(srcDir, srcFilename, dstDir, name, batchLengthSeconds, edgeLifeTimeSeconds, from, to,
 				model, attackListPath, enableVis, labeler);
