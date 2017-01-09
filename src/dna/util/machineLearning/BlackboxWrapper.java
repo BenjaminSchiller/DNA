@@ -279,6 +279,11 @@ public class BlackboxWrapper {
 	protected TruthLabeler truthLabeler;
 
 	// constructor
+	public BlackboxWrapper(String scriptPath, String featureListPath, int numberOfFeatures, String blackboxPath)
+			throws IOException, InterruptedException {
+		this(scriptPath, featureListPath, numberOfFeatures, blackboxPath, null);
+	}
+
 	public BlackboxWrapper(String scriptPath, String featureListPath, int numberOfFeatures, String blackboxPath,
 			String truthListPath) throws IOException, InterruptedException {
 		Log.info("setting up blackbox wrapper");
@@ -298,7 +303,9 @@ public class BlackboxWrapper {
 		this.features = readFeatureList(featureListPath);
 		this.numberOfFeatures = numberOfFeatures;
 		this.blackboxPath = blackboxPath;
-		this.truthLabeler = new TruthLabeler(truthListPath);
+
+		if (truthListPath != null)
+			this.truthLabeler = new TruthLabeler(truthListPath);
 
 		this.interpreter = new ProcessBuilder("python", scriptPath);
 		this.p = interpreter.start();
