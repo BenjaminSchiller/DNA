@@ -59,7 +59,7 @@ public class ModelLabelingTest {
 		String srcDir = homeDir + "data/datasets/darpa1998/";
 		String srcFilename = week + "_" + day + ".netflow";
 
-		String dstDir = homeDir + "tests/data/";
+		String dstDir = homeDir + "tests/data/blub/";
 		String name = "blub";
 
 		String attackListPath = homeDir + "data/lists/darpa1998/" + week + "_" + day + ".labels";
@@ -73,13 +73,14 @@ public class ModelLabelingTest {
 		DateTime to = getDateTime(week, day, "08:10:00");
 
 		String labelMode = "2";
-		int numberOfFeatures = 200;
+		int numberOfFeatures = 300;
 
 		String scriptPath = homeDir + "customscripts/wrapper/blackbox_java_wrapper.py";
 		String featureListPath = homeDir + "data/features/darpa1998/train/ranking/" + week + "_" + day + "/"
 				+ batchLengthSeconds + "_" + edgeLifeTimeSeconds + "_" + model.getName() + "_l" + labelMode + ".lasso";
-		String modelPath = homeDir + "q-data/models/darpa1998/train/" + week + "_" + day + "/" + batchLengthSeconds + "_" + edgeLifeTimeSeconds + "_"+  model.getName() + "_f"
-				+ numberOfFeatures + "_l" + labelMode + ".svm";
+		String modelPath = homeDir + "q-data/models/darpa1998/train/" + week + "_" + day + "/" + batchLengthSeconds
+				+ "_" + edgeLifeTimeSeconds + "_" + model.getName() + "_f" + numberOfFeatures + "_l" + labelMode
+				+ ".svm";
 
 		Labeler[] labeler = new Labeler[] {
 				new ModelLabeler("ModelLabeler", scriptPath, featureListPath, numberOfFeatures, modelPath) };
@@ -122,6 +123,9 @@ public class ModelLabelingTest {
 		// additional values
 		Config.overwrite("GENERATE_VALUES_FROM_DISTRIBUTION", "true");
 		Config.overwrite("GENERATE_DISTRIBUTION_PERCENT_VALUES", "true");
+
+		// configure extra value generation
+		Config.overwrite("EXTRA_VALUE_DISTRIBUTION_PERCENT", "99, 98, 97, 96, 95, 90, 85, 80, 70, 50");
 
 		// init reader
 		NetflowEventReader reader = new DarpaNetflowReader(srcDir, srcFilename);
