@@ -44,7 +44,9 @@ public class ModelLabeler extends Labeler {
 		ArrayList<Label> list = new ArrayList<Label>();
 		if (model != null) {
 			String prediction = model.predict(batchData);
-			list.add(new Label(this.getName(), "class", prediction));
+
+			if (!prediction.equals("0"))
+				list.add(new Label(this.getName(), "class", prediction));
 		}
 		return list;
 	}
