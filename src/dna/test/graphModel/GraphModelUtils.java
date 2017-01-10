@@ -108,11 +108,11 @@ public class GraphModelUtils {
 	protected static final String m1NodeWeightString = nodeWeightString;
 	public static final NodeWeightValue[] m1NodeWeights = parseNodeWeightValues(m1NodeWeightString.split(";"));
 
-	public static final Metric[] m1allMetrics = new Metric[] { new DegreeDistributionR(hostType),
-			new DegreeDistributionR(portType), new AssortativityU(), new DirectedClusteringCoefficientU(),
-			new UnweightedMultiSourceShortestPathsR(100), new RichClubConnectivityByDegreeU(), new WeakConnectivityR(),
-			new StrongConnectivityR(), new WeightedDegreeDistributionMultiR(0, 1.0),
-			new WeightedDegreeDistributionMultiR(hostType, 0, 1.0),
+	public static final Metric[] m1allMetrics = new Metric[] { new DegreeDistributionR(),
+			new DegreeDistributionR(hostType), new DegreeDistributionR(portType), new AssortativityU(),
+			new DirectedClusteringCoefficientU(), new UnweightedMultiSourceShortestPathsR(100),
+			new RichClubConnectivityByDegreeU(), new WeakConnectivityR(), new StrongConnectivityR(),
+			new WeightedDegreeDistributionMultiR(0, 1.0), new WeightedDegreeDistributionMultiR(hostType, 0, 1.0),
 			new WeightedDegreeDistributionMultiR(portType, 0, 1.0), new WeightedDegreeDistributionMultiR(1, 1.0),
 			new WeightedDegreeDistributionMultiR(hostType, 1, 1.0),
 			new WeightedDegreeDistributionMultiR(portType, 1, 1.0), new WeightedDegreeDistributionMultiR(2, 1000.0),
@@ -150,11 +150,11 @@ public class GraphModelUtils {
 	protected static final String m3NodeWeightString = nodeWeightString;
 	public static final NodeWeightValue[] m3NodeWeights = parseNodeWeightValues(m3NodeWeightString.split(";"));
 
-	public static final Metric[] m3allMetrics = new Metric[] { new DegreeDistributionR(hostType),
-			new DegreeDistributionR(protType), new AssortativityU(), new DirectedClusteringCoefficientU(),
-			new UnweightedMultiSourceShortestPathsR(100), new RichClubConnectivityByDegreeU(), new WeakConnectivityR(),
-			new StrongConnectivityR(), new WeightedDegreeDistributionMultiR(0, 1.0),
-			new WeightedDegreeDistributionMultiR(hostType, 0, 1.0),
+	public static final Metric[] m3allMetrics = new Metric[] { new DegreeDistributionR(),
+			new DegreeDistributionR(hostType), new DegreeDistributionR(protType), new AssortativityU(),
+			new DirectedClusteringCoefficientU(), new UnweightedMultiSourceShortestPathsR(100),
+			new RichClubConnectivityByDegreeU(), new WeakConnectivityR(), new StrongConnectivityR(),
+			new WeightedDegreeDistributionMultiR(0, 1.0), new WeightedDegreeDistributionMultiR(hostType, 0, 1.0),
 			new WeightedDegreeDistributionMultiR(protType, 0, 1.0), new WeightedDegreeDistributionMultiR(1, 1.0),
 			new WeightedDegreeDistributionMultiR(hostType, 1, 1.0),
 			new WeightedDegreeDistributionMultiR(protType, 1, 1.0), new WeightedDegreeDistributionMultiR(2, 1000.0),

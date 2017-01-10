@@ -254,7 +254,7 @@ public class ModelWrapper {
 		}
 
 		public double obtainValueFromBatch(BatchData b) {
-			// System.out.println("getting value: " + metric + " ~ " + value);
+			 System.out.println("getting value: " + metric + " ~ " + value);
 			if (metric.equals("statistics")) {
 				return b.getValues().get(value).getValue();
 			} else {
