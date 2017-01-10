@@ -45,6 +45,7 @@ public class ModelLabeler extends Labeler {
 		if (model != null) {
 			String prediction = model.predict(batchData);
 
+			// only add labels whenn prediction is not 0
 			if (!prediction.equals("0"))
 				list.add(new Label(this.getName(), "class", prediction));
 		}

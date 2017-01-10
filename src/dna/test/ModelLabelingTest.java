@@ -21,6 +21,7 @@ import dna.io.network.netflow.NetflowEventReader;
 import dna.io.network.netflow.darpa.DarpaNetflowReader;
 import dna.labels.labeler.Labeler;
 import dna.labels.labeler.LabelerNotApplicableException;
+import dna.labels.labeler.attacks.GroundTruthLabelerAttacks;
 import dna.labels.labeler.models.ModelLabeler;
 import dna.metrics.Metric;
 import dna.metrics.MetricNotApplicableException;
@@ -45,7 +46,7 @@ public class ModelLabelingTest {
 	public static final boolean writeDistributions = false;
 	public static final boolean writeNodeValueLists = false;
 	public static final boolean writeNodeNodeValueLists = false;
-	public static final boolean enableVis = false;
+	public static final boolean enableVis = true;
 	public static final int dataOffsetSeconds = 0;
 	public static final ZipMode zipMode = ZipMode.batches;
 
@@ -62,18 +63,19 @@ public class ModelLabelingTest {
 		String dstDir = homeDir + "tests/data/blub/";
 		String name = "blub";
 
-		String attackListPath = homeDir + "data/lists/darpa1998/" + week + "_" + day + ".labels";
+		String attackListDir = homeDir + "data/lists/darpa1998/";
+		String attackListFile = week + "_" + day + ".labels";
 
 		// model settings
 		int batchLengthSeconds = 1;
 		int edgeLifeTimeSeconds = 300;
-		GraphModel model = GraphModelUtils.model0; // select model
+		GraphModel model = GraphModelUtils.model1; // select model
 
-		DateTime from = getDateTime(week, day, "07:55:00");
-		DateTime to = getDateTime(week, day, "08:10:00");
+		DateTime from = getDateTime(week, day, "17:25:00");
+		DateTime to = getDateTime(week, day, "17:29:00");
 
 		String labelMode = "2";
-		int numberOfFeatures = 300;
+		int numberOfFeatures = 200;
 
 		String scriptPath = homeDir + "customscripts/wrapper/blackbox_java_wrapper.py";
 		String featureListPath = homeDir + "data/features/darpa1998/train/ranking/" + week + "_" + day + "/"
@@ -83,28 +85,28 @@ public class ModelLabelingTest {
 				+ ".svm";
 
 		Labeler[] labeler = new Labeler[] {
-				new ModelLabeler("ModelLabeler", scriptPath, featureListPath, numberOfFeatures, modelPath) };
+				new ModelLabeler("ModelLabeler", scriptPath, featureListPath, numberOfFeatures, modelPath),
+				new GroundTruthLabelerAttacks("DarpaGroundTruth", attackListDir, attackListFile, edgeLifeTimeSeconds) };
 
 		SeriesData sd = generate(srcDir, srcFilename, dstDir, name, batchLengthSeconds, edgeLifeTimeSeconds, from, to,
-				model, attackListPath, enableVis, labeler);
+				model, enableVis, labeler);
 	}
 
 	public static SeriesData generate(String srcDir, String srcFilename, String dstDir, String name,
 			int batchLengthSeconds, int edgeLifeTimeSeconds, DateTime from, DateTime to, GraphModel model,
-			String attackListPath, boolean enableVis, Labeler[] labeler) throws IOException, ParseException,
-			AggregationException, MetricNotApplicableException, LabelerNotApplicableException {
+			boolean enableVis, Labeler[] labeler) throws IOException, ParseException, AggregationException,
+			MetricNotApplicableException, LabelerNotApplicableException {
 		return generate(srcDir, srcFilename, dstDir, srcFilename, batchLengthSeconds, dataOffsetSeconds,
-				edgeLifeTimeSeconds, from, to, attackListPath, enableVis, model.getMetrics(), model.getEdges(),
+				edgeLifeTimeSeconds, from, to, enableVis, model.getMetrics(), model.getEdges(),
 				model.getEdgeDirections(), model.getEdgeWeights(), model.getNodeWeights(), labeler);
 
 	}
 
 	public static SeriesData generate(String srcDir, String srcFilename, String dstDir, String name,
 			int batchLengthSeconds, int dataOffsetSeconds, int edgeLifeTimeSeconds, DateTime from, DateTime to,
-			String attackListPath, boolean enableVis, Metric[] metrics, NetflowEventField[][] edges,
-			NetflowDirection[] edgeDirections, EdgeWeightValue[] edgeWeights, NodeWeightValue[] nodeWeights,
-			Labeler[] labeler) throws IOException, ParseException, AggregationException, MetricNotApplicableException,
-			LabelerNotApplicableException {
+			boolean enableVis, Metric[] metrics, NetflowEventField[][] edges, NetflowDirection[] edgeDirections,
+			EdgeWeightValue[] edgeWeights, NodeWeightValue[] nodeWeights, Labeler[] labeler) throws IOException,
+			ParseException, AggregationException, MetricNotApplicableException, LabelerNotApplicableException {
 		// vis
 		Config.overwrite("GRAPH_VIS_SHOW_NODE_WEIGHTS", "true");
 		Config.overwrite("GRAPH_VIS_SHOW_NODE_INDEX", "true");
