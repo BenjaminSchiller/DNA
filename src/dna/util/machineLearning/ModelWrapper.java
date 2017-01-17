@@ -16,10 +16,13 @@ import dna.io.filesystem.Dir;
 import dna.series.aggdata.AggregatedBatch.BatchReadMode;
 import dna.series.data.BatchData;
 import dna.series.lists.BatchDataList;
-import dna.test.Test.LabelMode;
 import dna.util.Log;
 
 public class ModelWrapper {
+
+	public enum LabelMode {
+		attackClasses, attacks, zeroOneMode
+	}
 
 	public class LabelEntry {
 		protected String attackClass;
@@ -254,7 +257,7 @@ public class ModelWrapper {
 		}
 
 		public double obtainValueFromBatch(BatchData b) {
-			 System.out.println("getting value: " + metric + " ~ " + value);
+			System.out.println("getting value: " + metric + " ~ " + value);
 			if (metric.equals("statistics")) {
 				return b.getValues().get(value).getValue();
 			} else {
