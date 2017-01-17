@@ -257,7 +257,6 @@ public class ModelWrapper {
 		}
 
 		public double obtainValueFromBatch(BatchData b) {
-			System.out.println("getting value: " + metric + " ~ " + value);
 			if (metric.equals("statistics")) {
 				return b.getValues().get(value).getValue();
 			} else {
@@ -388,19 +387,11 @@ public class ModelWrapper {
 	/** Uses the blackbox to predict the given data. **/
 	public String predict(BatchData b) {
 		String prediction = null;
-		// System.out.println(b.getTimestamp());
-		// System.out.println("values: " + b.getValues().size());
-		// System.out.println("metrics: " + b.getMetrics().size());
 
 		String featureVector = "";
 
 		for (int i = 0; i < this.numberOfFeatures; i++) {
 			FeatureListEntry e = this.features.get(i);
-			// System.out.println(i + "\t" + e.getName() + " @ " +
-			// e.getScore());
-			// System.out.println("\t\tm: " + e.getMetric() + "\tv: " +
-			// e.getValue());
-			// System.out.println(i);
 			double v = e.obtainValueFromBatch(b);
 
 			if (Double.isNaN(v) || Double.isInfinite(v))
@@ -412,7 +403,6 @@ public class ModelWrapper {
 				featureVector += featureVectorDelimiter + v;
 		}
 
-		// System.out.println("exec: " + featureVector);
 		prediction = exec(featureVector);
 
 		prediction = prediction.replaceAll("predicting: ", "");
