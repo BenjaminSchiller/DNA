@@ -106,6 +106,8 @@ public class LabelVisualizer extends Visualizer {
 			this.xAxis1.setAxisScalePolicy(new AxisScalePolicyAutomaticBestFit());
 		}
 
+		this.xAxis1.setRangePolicy(new RangePolicyFixedViewport(new Range(0, 1)));
+
 		this.yAxis1.setAxisScalePolicy(new AxisScalePolicyManualTicks());
 		this.yAxis1.setRangePolicy(new RangePolicyFixedViewport(new Range(0, 1)));
 		this.yAxis1.setPaintScale(false);
@@ -142,11 +144,11 @@ public class LabelVisualizer extends Visualizer {
 	/** initializes the data with the first batch **/
 	public void initData(BatchData b) {
 		long timestamp = b.getTimestamp();
-		
+
 		if (Config.getBoolean("VISUALIZATION_TIMESTAMP_AS_SECOND")) {
 			timestamp = (timestamp + Config.getInt("VISUALIZATION_TIMESTAMP_OFFSET")) * 1000;
 		}
-		
+
 		this.initBatch = b;
 		this.minTimestamp = timestamp;
 		this.maxTimestamp = timestamp;
@@ -326,13 +328,13 @@ public class LabelVisualizer extends Visualizer {
 	 */
 	public void updateData(BatchData b) {
 		long timestamp = b.getTimestamp();
+		
 		if (Config.getBoolean("VISUALIZATION_TIMESTAMP_AS_SECOND")) {
-			timestamp = (timestamp+ Config.getInt("VISUALIZATION_TIMESTAMP_OFFSET")) * 1000;
+			timestamp = (timestamp + Config.getInt("VISUALIZATION_TIMESTAMP_OFFSET")) * 1000;
 		}
 
 		double timestampDouble = timestamp;
 
-		
 		// check if new batch is before last one which means time slided
 		// backwards
 		if (timestamp < this.currentTimestamp) {
@@ -391,7 +393,8 @@ public class LabelVisualizer extends Visualizer {
 					this.minShownTimestamp = this.maxShownTimestamp - this.TRACE_LENGTH;
 				else
 					this.minShownTimestamp = 0;
-				this.xAxis1.setRange(new Range(this.minShownTimestamp, this.maxShownTimestamp));
+
+				this.xAxis1.setRange(new Range(this.minTimestamp, this.maxTimestamp));
 			} else {
 				if (this.FIXED_VIEWPORT) {
 					double lowP = 1.0 * this.menuBar.getIntervalSlider().getValue() / 100;
