@@ -52,6 +52,9 @@ public class ModelLabelingTest {
 
 	public static void main(String[] args) throws IOException, ParseException, AggregationException,
 			MetricNotApplicableException, LabelerNotApplicableException {
+		GraphVisualization.setConfigPath("config/gvis/gids.cfg");
+		
+		
 		int week = 2;
 		int day = 1;
 
