@@ -170,11 +170,12 @@ public class MetricVisualizer extends Visualizer {
 	 */
 	public void updateData(BatchData b) {
 		long timestamp = b.getTimestamp();
-		double timestampDouble = timestamp;
 
 		if (Config.getBoolean("VISUALIZATION_TIMESTAMP_AS_SECOND")) {
-			timestampDouble = (timestampDouble + Config.getInt("VISUALIZATION_TIMESTAMP_OFFSET")) * 1000;
+			timestamp = (timestamp + Config.getInt("VISUALIZATION_TIMESTAMP_OFFSET")) * 1000;
 		}
+
+		double timestampDouble = timestamp;
 		
 		// check if new batch is before last one which means time slided
 		// backwards
@@ -330,9 +331,13 @@ public class MetricVisualizer extends Visualizer {
 
 	/** updates only one specific trace **/
 	private void updateTrace(BatchData b, String name) {
-
 		long timestamp = b.getTimestamp();
 		double timestampDouble = timestamp;
+		
+		if (Config.getBoolean("VISUALIZATION_TIMESTAMP_AS_SECOND")) {
+			timestampDouble = (timestampDouble + Config.getInt("VISUALIZATION_TIMESTAMP_OFFSET")) * 1000;
+		}
+		
 		// update values
 		for (String metric : b.getMetrics().getNames()) {
 			for (String value : b.getMetrics().get(metric).getValues().getNames()) {
@@ -445,13 +450,20 @@ public class MetricVisualizer extends Visualizer {
 
 	/** initializes the data with the first batch **/
 	public void initData(BatchData b) {
+		long timestamp = b.getTimestamp();
+		
+		if (Config.getBoolean("VISUALIZATION_TIMESTAMP_AS_SECOND")) {
+			timestamp = (timestamp+ Config.getInt("VISUALIZATION_TIMESTAMP_OFFSET")) * 1000;
+		}
+		
+		
 		this.initBatch = b;
-		this.minTimestamp = b.getTimestamp();
-		this.maxTimestamp = b.getTimestamp();
-		this.minShownTimestamp = b.getTimestamp();
+		this.minTimestamp = timestamp;
+		this.maxTimestamp = timestamp;
+		this.minShownTimestamp = timestamp;
 		this.maxShownTimestamp = this.minShownTimestamp;
 
-		this.currentTimestamp = b.getTimestamp();
+		this.currentTimestamp = timestamp;
 
 		// clear chart
 		for (ITrace2D t : this.chart.getTraces()) {

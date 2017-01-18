@@ -18,6 +18,7 @@ import javax.swing.border.TitledBorder;
 import dna.labels.Label;
 import dna.labels.LabelList;
 import dna.series.data.BatchData;
+import dna.util.Config;
 import dna.visualization.MainDisplay;
 import dna.visualization.components.visualizer.traces.LabelTrace;
 import dna.visualization.config.components.LabelVisualizerConfig;
@@ -140,13 +141,19 @@ public class LabelVisualizer extends Visualizer {
 
 	/** initializes the data with the first batch **/
 	public void initData(BatchData b) {
+		long timestamp = b.getTimestamp();
+		
+		if (Config.getBoolean("VISUALIZATION_TIMESTAMP_AS_SECOND")) {
+			timestamp = (timestamp + Config.getInt("VISUALIZATION_TIMESTAMP_OFFSET")) * 1000;
+		}
+		
 		this.initBatch = b;
-		this.minTimestamp = b.getTimestamp();
-		this.maxTimestamp = b.getTimestamp();
-		this.minShownTimestamp = b.getTimestamp();
+		this.minTimestamp = timestamp;
+		this.maxTimestamp = timestamp;
+		this.minShownTimestamp = timestamp;
 		this.maxShownTimestamp = this.minShownTimestamp;
 
-		this.currentTimestamp = b.getTimestamp();
+		this.currentTimestamp = timestamp;
 
 		// clear chart
 		for (ITrace2D t : this.chart.getTraces()) {
@@ -154,7 +161,7 @@ public class LabelVisualizer extends Visualizer {
 		}
 
 		for (String name : this.labelTraces.keySet()) {
-			this.labelTraces.get(name).setLastTimestamp(b.getTimestamp() - 1);
+			this.labelTraces.get(name).setLastTimestamp(timestamp - 1);
 		}
 
 		// gather all available values
@@ -319,8 +326,13 @@ public class LabelVisualizer extends Visualizer {
 	 */
 	public void updateData(BatchData b) {
 		long timestamp = b.getTimestamp();
+		if (Config.getBoolean("VISUALIZATION_TIMESTAMP_AS_SECOND")) {
+			timestamp = (timestamp+ Config.getInt("VISUALIZATION_TIMESTAMP_OFFSET")) * 1000;
+		}
+
 		double timestampDouble = timestamp;
 
+		
 		// check if new batch is before last one which means time slided
 		// backwards
 		if (timestamp < this.currentTimestamp) {
