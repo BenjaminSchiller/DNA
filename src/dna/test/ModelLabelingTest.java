@@ -37,6 +37,8 @@ import dna.util.network.DatasetUtils;
 import dna.util.network.NetflowAnalysis.EdgeWeightValue;
 import dna.util.network.NetflowAnalysis.NodeWeightValue;
 import dna.visualization.BatchHandler.ZipMode;
+import dna.visualization.MainDisplay;
+import dna.visualization.config.components.MainDisplayConfig;
 import dna.visualization.graph.GraphVisualization;
 import dna.visualization.graph.toolTips.infoLabel.NetworkNodeKeyLabel;
 
@@ -48,7 +50,7 @@ public class ModelLabelingTest {
 	public static final boolean writeNodeNodeValueLists = false;
 	public static final boolean enableVis = true;
 	public static final int dataOffsetSeconds = 0;
-	public static final ZipMode zipMode = ZipMode.batches;
+	public static final ZipMode zipMode = ZipMode.none;
 
 	public static void main(String[] args) throws IOException, ParseException, AggregationException,
 			MetricNotApplicableException, LabelerNotApplicableException {
@@ -91,6 +93,12 @@ public class ModelLabelingTest {
 				new ModelLabeler("ModelLabeler", scriptPath, featureListPath, numberOfFeatures, modelPath),
 				new GroundTruthLabelerAttacks("DarpaGroundTruth", attackListDir, attackListFile, edgeLifeTimeSeconds) };
 
+		MainDisplayConfig visConfig = MainDisplayConfig.readConfig("config/gui_min_lab.cfg");
+		visConfig.setDefaultDir(dstDir + "run.0/");
+		visConfig.setLiveDisplayMode(true);
+		MainDisplay display = new MainDisplay(visConfig);
+		display.startLiveMonitoring();
+		
 		SeriesData sd = generate(srcDir, srcFilename, dstDir, name, batchLengthSeconds, edgeLifeTimeSeconds, from, to,
 				model, enableVis, labeler);
 	}
@@ -179,7 +187,7 @@ public class ModelLabelingTest {
 		Series s = new Series(gg, bg, metrics, labeler, dstDir, name);
 
 		// generate
-		SeriesData sd = s.generate(1, Integer.MAX_VALUE, false, false, true, 0);
+		SeriesData sd = s.generate(1, Integer.MAX_VALUE, false, false, true, 1);
 
 		GraphVisualization.setText("Finished");
 		Log.infoSep();
