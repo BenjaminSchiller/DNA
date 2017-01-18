@@ -34,9 +34,9 @@ import dna.updates.generators.BatchGenerator;
 import dna.util.Config;
 import dna.util.Log;
 import dna.util.network.DatasetUtils;
-import dna.util.network.DatasetUtils.ZipMode;
 import dna.util.network.NetflowAnalysis.EdgeWeightValue;
 import dna.util.network.NetflowAnalysis.NodeWeightValue;
+import dna.visualization.BatchHandler.ZipMode;
 import dna.visualization.graph.GraphVisualization;
 import dna.visualization.graph.toolTips.infoLabel.NetworkNodeKeyLabel;
 
