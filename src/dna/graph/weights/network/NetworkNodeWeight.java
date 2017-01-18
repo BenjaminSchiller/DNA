@@ -35,6 +35,11 @@ public class NetworkNodeWeight extends TypedWeight {
 		return buff;
 	}
 
+	@Override
+	public String asString() {
+		return toString();
+	}
+
 	public NetworkNodeWeight(WeightSelection ws) {
 		this("unknown", new double[0]);
 	}

@@ -267,6 +267,9 @@ public class MainDisplay extends JFrame {
 
 	public MainDisplay(boolean liveDisplay, ZipMode zipMode,
 			MainDisplayConfig config) {
+		// set config
+		MainDisplay.config = config;
+		
 		// init
 		setTitle(config.getName());
 		setSize(config.getSize());
