@@ -18,6 +18,7 @@ import dna.series.data.BatchData;
 import dna.series.data.MetricData;
 import dna.series.data.RunTime;
 import dna.series.data.Value;
+import dna.util.Config;
 import dna.visualization.MainDisplay;
 import dna.visualization.config.ConfigItem;
 import dna.visualization.config.MetricVisualizerItem;
@@ -110,8 +111,11 @@ public class MetricVisualizer extends Visualizer {
 			@Override
 			public void mouseMoved(MouseEvent e) {
 				if (chart.getPointFinder().getNearestPoint(e, chart) != null) {
-					ITracePoint2D tempPointFinder = chart.getPointFinder().getNearestPoint(e, chart);
-					menuBar.updateCoordsPanel((int) Math.floor(tempPointFinder.getX()), tempPointFinder.getY());
+					ITracePoint2D tempPointFinder = chart.getPointFinder()
+							.getNearestPoint(e, chart);
+					menuBar.updateCoordsPanel(
+							tempPointFinder.getX(),
+							tempPointFinder.getY());
 				}
 			}
 
@@ -168,6 +172,10 @@ public class MetricVisualizer extends Visualizer {
 		long timestamp = b.getTimestamp();
 		double timestampDouble = timestamp;
 
+		if (Config.getBoolean("VISUALIZATION_TIMESTAMP_AS_SECOND")) {
+			timestampDouble = (timestampDouble + Config.getInt("VISUALIZATION_TIMESTAMP_OFFSET")) * 1000;
+		}
+		
 		// check if new batch is before last one which means time slided
 		// backwards
 		if (timestamp < this.currentTimestamp) {
