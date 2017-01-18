@@ -1121,8 +1121,8 @@ public class GraphPanel extends JPanel {
 		int n2 = e.getN2Index();
 
 		// remove edge
-		Edge edge = this.graph.removeEdge(this.graph.getNode("" + n1)
-				.getEdgeBetween("" + n2));
+		Edge edge = this.graph.getNode("" + n1).getEdgeBetween("" + n2);
+		this.graph.removeEdge(edge);
 
 		// apply style rules
 		Node node1 = this.graph.getNode("" + n1);
