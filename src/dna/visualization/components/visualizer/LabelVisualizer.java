@@ -328,7 +328,7 @@ public class LabelVisualizer extends Visualizer {
 	 */
 	public void updateData(BatchData b) {
 		long timestamp = b.getTimestamp();
-		
+
 		if (Config.getBoolean("VISUALIZATION_TIMESTAMP_AS_SECOND")) {
 			timestamp = (timestamp + Config.getInt("VISUALIZATION_TIMESTAMP_OFFSET")) * 1000;
 		}
@@ -386,39 +386,12 @@ public class LabelVisualizer extends Visualizer {
 					labelTrace.update(timestampDouble, null);
 			}
 
-			// timestamp adjustmens for x-axis tick calculation
-			if (config.isTraceModeLtd() && !this.FIXED_VIEWPORT) {
-				this.maxShownTimestamp = this.maxTimestamp;
-				if (this.maxShownTimestamp - this.TRACE_LENGTH > 0)
-					this.minShownTimestamp = this.maxShownTimestamp - this.TRACE_LENGTH;
-				else
-					this.minShownTimestamp = 0;
-
-				this.xAxis1.setRange(new Range(this.minTimestamp, this.maxTimestamp));
+			if (this.FIXED_VIEWPORT) {
+				this.xAxis1.setRange(new Range(minTimestamp, maxTimestamp));
 			} else {
-				if (this.FIXED_VIEWPORT) {
-					double lowP = 1.0 * this.menuBar.getIntervalSlider().getValue() / 100;
-					double highP = 1.0 * (this.menuBar.getIntervalSlider().getValue()
-							+ this.menuBar.getIntervalSlider().getModel().getExtent()) / 100;
-					double minD = 0;
-					double maxD = 0;
-
-					for (String s : this.labelTraces.keySet()) {
-						minD = this.labelTraces.get(s).getMinX();
-						maxD = this.labelTraces.get(s).getMaxX();
-						if (this.labelTraces.get(s).getMinX() < this.minTimestamp)
-							minD = this.labelTraces.get(s).getMinX();
-						if (this.labelTraces.get(s).getMaxX() > this.maxTimestamp)
-							maxD = this.labelTraces.get(s).getMaxX();
-					}
-					double tMinNew = minD + (lowP * (maxD - minD));
-					double tMaxNew = minD + (highP * (maxD - minD));
-
-					this.xAxis1.setRange(new Range(tMinNew, tMaxNew));
-					this.setMinShownTimestamp((long) tMinNew);
-					this.setMaxShownTimestamp((long) tMaxNew);
-				}
+				this.setXAxis1RangeByIntervalSelection();
 			}
+
 			// update chart axis ticks
 			this.updateTicks();
 

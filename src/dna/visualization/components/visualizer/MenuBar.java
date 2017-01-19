@@ -163,47 +163,56 @@ public class MenuBar extends JPanel implements ChangeListener {
 				if (x1ShowAllCheckBox.isSelected()) {
 					// if selected: disable bar and slider and set x1 to
 					// unbounded policy
-					parent.xAxis1.setRangePolicy(new RangePolicyUnbounded());
+					// parent.xAxis1.setRangePolicy(new RangePolicyUnbounded());
 					parent.setFixedViewport(false);
+					parent.resetXAxis1Range();
 					x1IntervalScrollBar.setEnabled(false);
 					x1SizeSlider.setEnabled(false);
 				} else {
 					// if not selected: enable bar and slider and set x1 to
 					// fixedviewport policy
-					double minTemp = 0;
-					double maxTemp = 1;
-					parent.setFixedViewport(true);
-					parent.xAxis1.setRangePolicy(new RangePolicyFixedViewport());
-					if (parent instanceof MultiScalarVisualizer) {
-						for (Object t : parent.xAxis1.getTraces()) {
-							if (t instanceof Trace2DSimple) {
-								double minX = ((Trace2DSimple) t).getMinX();
-								double maxX = ((Trace2DSimple) t).getMaxX();
-								if (minTemp > minX)
-									minTemp = minX;
-								if (maxTemp < maxX)
-									maxTemp = maxX;
-							}
-						}
-					} else if (parent instanceof MetricVisualizer) {
-						for (Object t : parent.xAxis1.getTraces()) {
-							if (t instanceof Trace2DLtd) {
-								minTemp = ((Trace2DLtd) t).getMinX();
-								maxTemp = ((Trace2DLtd) t).getMaxX();
-								if (((Trace2DLtd) t).getMinX() < minTemp)
-									minTemp = ((Trace2DLtd) t).getMinX();
-								if (((Trace2DLtd) t).getMaxX() < maxTemp)
-									maxTemp = ((Trace2DLtd) t).getMaxX();
-							}
-						}
-					}
-					double lowP = 1.0 * x1IntervalScrollBar.getValue() / 100;
-					double highP = 1.0 * (x1IntervalScrollBar.getValue() + x1IntervalScrollBar.getModel().getExtent())
-							/ 100;
+					// double minTemp = 0;
+					// double maxTemp = 1;
+					// parent.setFixedViewport(true);
+					// parent.xAxis1.setRangePolicy(new
+					// RangePolicyFixedViewport());
+					// if (parent instanceof MultiScalarVisualizer) {
+					// for (Object t : parent.xAxis1.getTraces()) {
+					// if (t instanceof Trace2DSimple) {
+					// double minX = ((Trace2DSimple) t).getMinX();
+					// double maxX = ((Trace2DSimple) t).getMaxX();
+					// if (minTemp > minX)
+					// minTemp = minX;
+					// if (maxTemp < maxX)
+					// maxTemp = maxX;
+					// }
+					// }
+					// } else if (parent instanceof MetricVisualizer) {
+					// for (Object t : parent.xAxis1.getTraces()) {
+					// if (t instanceof Trace2DLtd) {
+					// minTemp = ((Trace2DLtd) t).getMinX();
+					// maxTemp = ((Trace2DLtd) t).getMaxX();
+					// if (((Trace2DLtd) t).getMinX() < minTemp)
+					// minTemp = ((Trace2DLtd) t).getMinX();
+					// if (((Trace2DLtd) t).getMaxX() < maxTemp)
+					// maxTemp = ((Trace2DLtd) t).getMaxX();
+					// }
+					// }
+					// }
+					// double lowP = 1.0 * x1IntervalScrollBar.getValue() / 100;
+					// double highP = 1.0 * (x1IntervalScrollBar.getValue() +
+					// x1IntervalScrollBar.getModel().getExtent())
+					// / 100;
+					//
+					// int minTimestampNew = (int) Math.floor(minTemp) + (int)
+					// Math.floor(lowP * (maxTemp - minTemp));
+					// int maxTimestampNew = (int) Math.floor(minTemp) + (int)
+					// Math.floor(highP * (maxTemp - minTemp));
+					// parent.xAxis1.setRange(new Range(minTimestampNew,
+					// maxTimestampNew));
 
-					int minTimestampNew = (int) Math.floor(minTemp) + (int) Math.floor(lowP * (maxTemp - minTemp));
-					int maxTimestampNew = (int) Math.floor(minTemp) + (int) Math.floor(highP * (maxTemp - minTemp));
-					parent.xAxis1.setRange(new Range(minTimestampNew, maxTimestampNew));
+					parent.setXAxis1RangePercent(getIntervalSliderSelectionLowPercent(),
+							getIntervalSliderSelectionHighPercent());
 					x1IntervalScrollBar.setEnabled(true);
 					x1SizeSlider.setEnabled(true);
 				}
@@ -229,39 +238,48 @@ public class MenuBar extends JPanel implements ChangeListener {
 			@Override
 			public void adjustmentValueChanged(AdjustmentEvent e) {
 				if (parent.chart.getAxisX().getRangePolicy() instanceof RangePolicyFixedViewport) {
-					double lowP = 1.0 * x1IntervalScrollBar.getValue() / 100;
-					double highP = 1.0 * (x1IntervalScrollBar.getValue() + x1IntervalScrollBar.getModel().getExtent())
-							/ 100;
+					// double lowP = 1.0 * x1IntervalScrollBar.getValue() / 100;
+					// double highP = 1.0 * (x1IntervalScrollBar.getValue() +
+					// x1IntervalScrollBar.getModel().getExtent())
+					// / 100;
+					//
+					// double minTemp = 0;
+					// double maxTemp = 1;
+					//
+					// // get range of plotted data
+					// for (Object t : parent.xAxis1.getTraces()) {
+					// if (t instanceof Trace2DSimple) {
+					// double minX = ((Trace2DSimple) t).getMinX();
+					// double maxX = ((Trace2DSimple) t).getMaxX();
+					// if (minTemp > minX)
+					// minTemp = minX;
+					// if (maxTemp < maxX)
+					// maxTemp = maxX;
+					// } else if (t instanceof Trace2DLtd) {
+					// minTemp = ((Trace2DLtd) t).getMinX();
+					// maxTemp = ((Trace2DLtd) t).getMaxX();
+					// }
+					// }
+					//
+					// if (parent instanceof LabelVisualizer) {
+					// minTemp = ((LabelVisualizer) parent).getMinTimestamp();
+					// maxTemp = ((LabelVisualizer) parent).getMaxTimestamp();
+					// }
+					//
+					// int minTimestampNew = (int) Math.floor(minTemp) + (int)
+					// Math.floor(lowP * (maxTemp - minTemp));
+					// int maxTimestampNew = (int) Math.floor(minTemp) + (int)
+					// Math.floor(highP * (maxTemp - minTemp));
+					// parent.setMinShownTimestamp((long) minTimestampNew);
+					// parent.setMaxShownTimestamp((long) maxTimestampNew);
+					// parent.xAxis1.setRange(new Range(minTimestampNew,
+					// maxTimestampNew));
+					// // update x ticks
 
-					double minTemp = 0;
-					double maxTemp = 1;
-
-					// get range of plotted data
-					for (Object t : parent.xAxis1.getTraces()) {
-						if (t instanceof Trace2DSimple) {
-							double minX = ((Trace2DSimple) t).getMinX();
-							double maxX = ((Trace2DSimple) t).getMaxX();
-							if (minTemp > minX)
-								minTemp = minX;
-							if (maxTemp < maxX)
-								maxTemp = maxX;
-						} else if (t instanceof Trace2DLtd) {
-							minTemp = ((Trace2DLtd) t).getMinX();
-							maxTemp = ((Trace2DLtd) t).getMaxX();
-						}
-					}
-
-					if (parent instanceof LabelVisualizer) {
-						minTemp = ((LabelVisualizer) parent).getMinTimestamp();
-						maxTemp = ((LabelVisualizer) parent).getMaxTimestamp();
-					}
-
-					int minTimestampNew = (int) Math.floor(minTemp) + (int) Math.floor(lowP * (maxTemp - minTemp));
-					int maxTimestampNew = (int) Math.floor(minTemp) + (int) Math.floor(highP * (maxTemp - minTemp));
-					parent.setMinShownTimestamp((long) minTimestampNew);
-					parent.setMaxShownTimestamp((long) maxTimestampNew);
-					parent.xAxis1.setRange(new Range(minTimestampNew, maxTimestampNew));
-					// update x ticks
+//					if (parent.isViewPortFixed()) {
+						parent.setXAxis1RangePercent(getIntervalSliderSelectionLowPercent(),
+								getIntervalSliderSelectionHighPercent());
+//					}
 					parent.updateX1Ticks();
 
 					parent.broadcastX1IntervalSizeSliderChange(x1SizeSlider.getValue());
@@ -853,6 +871,14 @@ public class MenuBar extends JPanel implements ChangeListener {
 					this.x1ShowAllCheckBox.doClick();
 			}
 		}
+	}
+
+	public double getIntervalSliderSelectionLowPercent() {
+		return 1.0 * this.getIntervalSlider().getValue() / 100;
+	}
+
+	public double getIntervalSliderSelectionHighPercent() {
+		return 1.0 * (this.getIntervalSlider().getValue() + this.getIntervalSlider().getModel().getExtent()) / 100;
 	}
 
 }

@@ -21,6 +21,7 @@ import info.monitorenter.gui.chart.rangepolicies.RangePolicyFixedViewport;
 import info.monitorenter.gui.chart.rangepolicies.RangePolicyUnbounded;
 import info.monitorenter.gui.chart.traces.Trace2DLtd;
 import info.monitorenter.gui.chart.traces.Trace2DSimple;
+import info.monitorenter.util.Range;
 
 @SuppressWarnings("serial")
 public class Visualizer extends JPanel {
@@ -385,6 +386,27 @@ public class Visualizer extends JPanel {
 
 	public void setFixedViewport(boolean isViewportFixed) {
 		this.FIXED_VIEWPORT = isViewportFixed;
+	}
+
+	public void resetXAxis1Range() {
+		this.setXAxis1Range(this.minTimestamp, this.maxTimestamp);
+	}
+
+	public void setXAxis1Range(long min, long max) {
+		this.xAxis1.setRange(new Range(min, max));
+	}
+
+	public void setXAxis1RangeByIntervalSelection() {
+		this.setXAxis1RangePercent(this.menuBar.getIntervalSliderSelectionLowPercent(),
+				this.menuBar.getIntervalSliderSelectionHighPercent());
+	}
+
+	public void setXAxis1RangePercent(double lowPercent, double highPercent) {
+		long coveredArea = maxTimestamp - minTimestamp;
+		long tMinNew = minTimestamp + (long) Math.floor(lowPercent * (coveredArea));
+		long tMaxNew = minTimestamp + (long) Math.floor(highPercent * (coveredArea));
+
+		this.xAxis1.setRange(new Range(tMinNew, tMaxNew));
 	}
 
 	public boolean isViewPortFixed() {
