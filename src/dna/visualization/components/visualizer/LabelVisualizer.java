@@ -387,9 +387,9 @@ public class LabelVisualizer extends Visualizer {
 			}
 
 			if (this.FIXED_VIEWPORT) {
-				this.xAxis1.setRange(new Range(minTimestamp, maxTimestamp));
-			} else {
 				this.setXAxis1RangeByIntervalSelection();
+			} else {
+				this.xAxis1.setRange(new Range(minTimestamp, maxTimestamp));
 			}
 
 			// update chart axis ticks
