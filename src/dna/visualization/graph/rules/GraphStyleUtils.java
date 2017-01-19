@@ -60,8 +60,7 @@ public class GraphStyleUtils {
 
 	/** Sets a shape to an element. **/
 	public static void setShape(Element e, ElementShape shape) {
-		e.setAttribute(GraphVisualization.shapeKey,
-				GraphStyleUtils.getStringFromShape(shape));
+		e.setAttribute(GraphVisualization.shapeKey, GraphStyleUtils.getStringFromShape(shape));
 	}
 
 	/** Returns the shape of an element. **/
@@ -97,27 +96,30 @@ public class GraphStyleUtils {
 
 	/** Updates the elements style. **/
 	public static void updateStyle(Element e) {
-		String style = "";
-		// add shape
-		if (e.hasAttribute(GraphVisualization.shapeKey))
-			style += "shape: " + e.getAttribute(GraphVisualization.shapeKey)
-					+ ";";
+		if (GraphStyleUtils.isStyleLocked(e)) {
+			// do nothing: style locked
+		} else {
 
-		// add color
-		if (e.hasAttribute(GraphVisualization.colorKey)) {
-			Color c = e.getAttribute(GraphVisualization.colorKey);
-			style += "fill-color: rgb(" + c.getRed() + "," + c.getGreen() + ","
-					+ c.getBlue() + ");";
+			String style = "";
+			// add shape
+			if (e.hasAttribute(GraphVisualization.shapeKey))
+				style += "shape: " + e.getAttribute(GraphVisualization.shapeKey) + ";";
+
+			// add color
+			if (e.hasAttribute(GraphVisualization.colorKey)) {
+				Color c = e.getAttribute(GraphVisualization.colorKey);
+				style += "fill-color: rgb(" + c.getRed() + "," + c.getGreen() + "," + c.getBlue() + ");";
+			}
+
+			// calc size
+			double size = (double) e.getAttribute(GraphVisualization.sizeKey);
+			size = size < 0 ? 0 : size;
+
+			style += "size: " + size + "px;";
+
+			// set style
+			e.setAttribute(GraphVisualization.styleKey, style);
 		}
-
-		// calc size
-		double size = (double) e.getAttribute(GraphVisualization.sizeKey);
-		size = size < 0 ? 0 : size;
-
-		style += "size: " + size + "px;";
-
-		// set style
-		e.setAttribute(GraphVisualization.styleKey, style);
 	}
 
 	/** Sets the label of the element. **/
@@ -136,5 +138,32 @@ public class GraphStyleUtils {
 			setLabel(e, getLabel(e) + text);
 		else
 			setLabel(e, text);
+	}
+
+	/**
+	 * Locks or unlocks the style-lock of an element, preventing automated
+	 * style-generation. Note: Element counts as locked when the styleLockKey is
+	 * present. The value assigned to the key is not regarded.
+	 **/
+	public static void setStyleLock(Element e, boolean locked) {
+		if (locked) {
+			e.setAttribute(GraphVisualization.styleLockKey, locked);
+		} else {
+			if (e.hasAttribute(GraphVisualization.styleLockKey))
+				e.removeAttribute(GraphVisualization.styleLockKey);
+		}
+	}
+
+	/**
+	 * Returns whether the element is locked or not. Note: Element counts as
+	 * locked when the styleLockKey is present. The value assigned to the key is
+	 * not regarded.
+	 **/
+	public static boolean isStyleLocked(Element e) {
+		if (e.hasAttribute(GraphVisualization.styleLockKey))
+			return true;
+		else
+			return false;
+
 	}
 }

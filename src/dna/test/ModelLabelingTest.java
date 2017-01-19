@@ -37,9 +37,8 @@ import dna.util.network.DatasetUtils;
 import dna.util.network.NetflowAnalysis.EdgeWeightValue;
 import dna.util.network.NetflowAnalysis.NodeWeightValue;
 import dna.visualization.BatchHandler.ZipMode;
-import dna.visualization.MainDisplay;
-import dna.visualization.config.components.MainDisplayConfig;
 import dna.visualization.graph.GraphVisualization;
+import dna.visualization.graph.rules.nodes.NetworkNodeStyles;
 import dna.visualization.graph.toolTips.infoLabel.NetworkNodeKeyLabel;
 
 public class ModelLabelingTest {
@@ -55,8 +54,7 @@ public class ModelLabelingTest {
 	public static void main(String[] args) throws IOException, ParseException, AggregationException,
 			MetricNotApplicableException, LabelerNotApplicableException {
 		GraphVisualization.setConfigPath("config/gvis/gids.cfg");
-		
-		
+
 		int week = 2;
 		int day = 1;
 
@@ -77,7 +75,7 @@ public class ModelLabelingTest {
 		GraphModel model = GraphModelUtils.model1; // select model
 
 		DateTime from = getDateTime(week, day, "17:25:00");
-		DateTime to = getDateTime(week, day, "17:29:00");
+		DateTime to = getDateTime(week, day, "17:36:00");
 
 		String labelMode = "2";
 		int numberOfFeatures = 200;
@@ -93,12 +91,13 @@ public class ModelLabelingTest {
 				new ModelLabeler("ModelLabeler", scriptPath, featureListPath, numberOfFeatures, modelPath),
 				new GroundTruthLabelerAttacks("DarpaGroundTruth", attackListDir, attackListFile, edgeLifeTimeSeconds) };
 
-		MainDisplayConfig visConfig = MainDisplayConfig.readConfig("config/gui_min_lab.cfg");
-		visConfig.setDefaultDir(dstDir + "run.0/");
-		visConfig.setLiveDisplayMode(true);
-		MainDisplay display = new MainDisplay(visConfig);
-		display.startLiveMonitoring();
-		
+		// MainDisplayConfig visConfig =
+		// MainDisplayConfig.readConfig("config/gui_min_lab.cfg");
+		// visConfig.setDefaultDir(dstDir + "run.0/");
+		// visConfig.setLiveDisplayMode(true);
+		// MainDisplay display = new MainDisplay(visConfig);
+		// display.startLiveMonitoring();
+
 		SeriesData sd = generate(srcDir, srcFilename, dstDir, name, batchLengthSeconds, edgeLifeTimeSeconds, from, to,
 				model, enableVis, labeler);
 	}
@@ -176,6 +175,7 @@ public class ModelLabelingTest {
 
 		// for graph representation
 		NetworkNodeKeyLabel.netflowBatchGenerator = (NetflowBatch) bg;
+		NetworkNodeStyles.netflowBatchGenerator = (NetflowBatch) bg;
 
 		// init Labeler
 		// Labeler[] labeler = new Labeler[0];
