@@ -18,6 +18,7 @@ import dna.io.network.netflow.darpa.DarpaNetflowReader;
 import dna.updates.batch.Batch;
 import dna.util.network.NetflowAnalysis.EdgeWeightValue;
 import dna.util.network.NetflowAnalysis.NodeWeightValue;
+import dna.visualization.graph.rules.nodes.NetworkNodeStyles;
 
 public class NetflowGraph extends NetworkGraph {
 
@@ -73,6 +74,9 @@ public class NetflowGraph extends NetworkGraph {
 
 		this.batchGenerator = new NetflowBatch("temp", reader, edges, edgeDirections, edgeWeights, nodeWeights);
 
+		// set batch-generator for mapping retrieval
+		NetworkNodeStyles.netflowBatchGenerator = (NetflowBatch) this.batchGenerator;
+
 		this.graph = generateGraph();
 	}
 
@@ -99,7 +103,6 @@ public class NetflowGraph extends NetworkGraph {
 
 		g.setTimestamp(TimeUnit.MILLISECONDS.toSeconds(this.initDateTime.getMillis()));
 
-		
 		// return graph
 		return g;
 	}
