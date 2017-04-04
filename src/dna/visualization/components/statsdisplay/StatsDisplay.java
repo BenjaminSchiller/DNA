@@ -26,6 +26,7 @@ import javax.swing.event.ChangeListener;
 import dna.series.data.BatchData;
 import dna.series.data.RunTime;
 import dna.series.data.Value;
+import dna.util.Config;
 import dna.util.Log;
 import dna.visualization.MainDisplay;
 import dna.visualization.config.components.StatsDisplayConfig;
@@ -681,8 +682,14 @@ public class StatsDisplay extends JPanel implements ChangeListener {
 	/** Sets the shown timestamp **/
 	public void setTimestamp(long timestamp) {
 		this.timestampLongValue.setText("" + timestamp);
+		
+		long tempTimestamp = timestamp;
+		if (Config.getBoolean("VISUALIZATION_TIMESTAMP_AS_SECOND")) {
+			tempTimestamp= (timestamp+ Config.getInt("VISUALIZATION_TIMESTAMP_OFFSET")) * 1000;
+		}
+		
 		this.timestampDateValue.setText(this.dateFormat.format(new Date(
-				timestamp)));
+				tempTimestamp)));
 		this.validate();
 	}
 

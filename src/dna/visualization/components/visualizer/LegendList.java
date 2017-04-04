@@ -70,13 +70,27 @@ public class LegendList extends JPanel {
 	}
 
 	/** updates the value of an legend item contained in the list **/
-	public void updateItem(String name, double value) {
+	public void updateItem(String name, String value) {
 		for (Component c : this.getComponents()) {
-			if (c instanceof LegendItemValue) {
-				if (c.getName().equals(name)) {
+			if (c.getName().equals(name)) {
+				if (c instanceof LegendItemValue) {
 					((LegendItemValue) c).setValue(value);
 				}
+				if (c instanceof LegendItemLabel) {
+					((LegendItemLabel) c).setValue(value);
+				}
+
 			}
+			// if (c instanceof LegendItemValue) {
+			// if (c.getName().equals(name)) {
+			// ((LegendItemValue) c).setValue(value);
+			// }
+			// }
+			// if (c instanceof LegendItemLabel) {
+			// if (c.getName().equals(name)) {
+			// ((Legend))
+			// }
+			// }
 		}
 		this.validate();
 	}

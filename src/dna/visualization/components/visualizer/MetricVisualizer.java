@@ -1,23 +1,5 @@
 package dna.visualization.components.visualizer;
 
-import info.monitorenter.gui.chart.IAxis;
-import info.monitorenter.gui.chart.IAxis.AxisTitle;
-import info.monitorenter.gui.chart.ITrace2D;
-import info.monitorenter.gui.chart.ITracePainter;
-import info.monitorenter.gui.chart.ITracePoint2D;
-import info.monitorenter.gui.chart.axis.scalepolicy.AxisScalePolicyAutomaticBestFit;
-import info.monitorenter.gui.chart.labelformatters.LabelFormatterDate;
-import info.monitorenter.gui.chart.rangepolicies.RangePolicyFixedViewport;
-import info.monitorenter.gui.chart.rangepolicies.RangePolicyUnbounded;
-import info.monitorenter.gui.chart.traces.Trace2DLtd;
-import info.monitorenter.gui.chart.traces.Trace2DSimple;
-import info.monitorenter.gui.chart.traces.painters.TracePainterDisc;
-import info.monitorenter.gui.chart.traces.painters.TracePainterFill;
-import info.monitorenter.gui.chart.traces.painters.TracePainterLine;
-import info.monitorenter.gui.chart.traces.painters.TracePainterPolyline;
-import info.monitorenter.gui.chart.traces.painters.TracePainterVerticalBar;
-import info.monitorenter.util.Range;
-
 import java.awt.Color;
 import java.awt.Font;
 import java.awt.event.MouseEvent;
@@ -36,11 +18,29 @@ import dna.series.data.BatchData;
 import dna.series.data.MetricData;
 import dna.series.data.RunTime;
 import dna.series.data.Value;
+import dna.util.Config;
 import dna.visualization.MainDisplay;
 import dna.visualization.config.ConfigItem;
 import dna.visualization.config.MetricVisualizerItem;
 import dna.visualization.config.VisualizerListConfig;
 import dna.visualization.config.components.MetricVisualizerConfig;
+import info.monitorenter.gui.chart.IAxis;
+import info.monitorenter.gui.chart.IAxis.AxisTitle;
+import info.monitorenter.gui.chart.ITrace2D;
+import info.monitorenter.gui.chart.ITracePainter;
+import info.monitorenter.gui.chart.ITracePoint2D;
+import info.monitorenter.gui.chart.axis.scalepolicy.AxisScalePolicyAutomaticBestFit;
+import info.monitorenter.gui.chart.labelformatters.LabelFormatterDate;
+import info.monitorenter.gui.chart.rangepolicies.RangePolicyFixedViewport;
+import info.monitorenter.gui.chart.rangepolicies.RangePolicyUnbounded;
+import info.monitorenter.gui.chart.traces.Trace2DLtd;
+import info.monitorenter.gui.chart.traces.Trace2DSimple;
+import info.monitorenter.gui.chart.traces.painters.TracePainterDisc;
+import info.monitorenter.gui.chart.traces.painters.TracePainterFill;
+import info.monitorenter.gui.chart.traces.painters.TracePainterLine;
+import info.monitorenter.gui.chart.traces.painters.TracePainterPolyline;
+import info.monitorenter.gui.chart.traces.painters.TracePainterVerticalBar;
+import info.monitorenter.util.Range;
 
 @SuppressWarnings("serial")
 public class MetricVisualizer extends Visualizer {
@@ -68,10 +68,11 @@ public class MetricVisualizer extends Visualizer {
 	private static String statisticsPrefix = "statistics.";
 
 	// constructor
-	public MetricVisualizer(MainDisplay mainDisplay,
-			MetricVisualizerConfig config) {
+	public MetricVisualizer(MainDisplay mainDisplay, MetricVisualizerConfig config) {
 		// initialization
 		super(config.getChartSize(), config.getLegendSize());
+
+		this.x1Connected = config.getMenuBarConfig().isX1AxisConnected();
 		this.mainDisplay = mainDisplay;
 		this.traces = new HashMap<String, ITrace2D>();
 		this.availableValues = new ArrayList<String>();
@@ -86,10 +87,8 @@ public class MetricVisualizer extends Visualizer {
 
 		// set title and border of the metric visualizer
 		TitledBorder title = BorderFactory.createTitledBorder(config.getName());
-		title.setBorder(BorderFactory
-				.createEtchedBorder((EtchedBorder.LOWERED)));
-		title.setTitleFont(new Font(
-				this.mainDisplay.getDefaultFont().getName(), Font.BOLD,
+		title.setBorder(BorderFactory.createEtchedBorder((EtchedBorder.LOWERED)));
+		title.setTitleFont(new Font(this.mainDisplay.getDefaultFont().getName(), Font.BOLD,
 				this.mainDisplay.getDefaultFont().getSize()));
 		title.setTitleColor(this.mainDisplay.getDefaultFontColor());
 		this.setBorder(title);
@@ -98,13 +97,13 @@ public class MetricVisualizer extends Visualizer {
 		this.xAxisTypeTimestamp = true;
 		if (config.getxAxisType().equals("date")) {
 			this.xAxisTypeTimestamp = false;
-			this.xAxis1.setFormatter(new LabelFormatterDate(
-					new SimpleDateFormat(config.getxAxisFormat())));
+			this.xAxis1.setFormatter(new LabelFormatterDate(new SimpleDateFormat(config.getxAxisFormat())));
 			this.xAxis1.setMajorTickSpacing(5);
 			this.xAxis1.setMinorTickSpacing(1);
-			this.xAxis1
-					.setAxisScalePolicy(new AxisScalePolicyAutomaticBestFit());
+			this.xAxis1.setAxisScalePolicy(new AxisScalePolicyAutomaticBestFit());
 		}
+
+		this.xAxis1.setRangePolicy(new RangePolicyFixedViewport(new Range(0, 1)));
 
 		// add menu bar
 		super.addMenuBar(config.getMenuBarConfig());
@@ -114,11 +113,8 @@ public class MetricVisualizer extends Visualizer {
 			@Override
 			public void mouseMoved(MouseEvent e) {
 				if (chart.getPointFinder().getNearestPoint(e, chart) != null) {
-					ITracePoint2D tempPointFinder = chart.getPointFinder()
-							.getNearestPoint(e, chart);
-					menuBar.updateCoordsPanel(
-							(int) Math.floor(tempPointFinder.getX()),
-							tempPointFinder.getY());
+					ITracePoint2D tempPointFinder = chart.getPointFinder().getNearestPoint(e, chart);
+					menuBar.updateCoordsPanel(tempPointFinder.getX(), tempPointFinder.getY());
 				}
 			}
 
@@ -130,9 +126,11 @@ public class MetricVisualizer extends Visualizer {
 		this.chart.setPreferredSize(config.getChartSize());
 		this.legend.setLegendSize(config.getLegendSize());
 		this.xAxisOffset = config.getxAxisOffset();
-
+		this.xAxis1.setAxisTitle(new AxisTitle(config.getx1AxisTitle()));
 		this.yAxis1.setAxisTitle(new AxisTitle(config.getY1AxisTitle()));
 		this.yAxis2.setAxisTitle(new AxisTitle(config.getY2AxisTitle()));
+
+		this.menuBar.setVisible(config.getMenuBarConfig().isVisible());
 	}
 
 	/** handles the ticks that are shown on the x axis **/
@@ -171,14 +169,18 @@ public class MetricVisualizer extends Visualizer {
 	 */
 	public void updateData(BatchData b) {
 		long timestamp = b.getTimestamp();
+
+		if (Config.getBoolean("VISUALIZATION_TIMESTAMP_AS_SECOND")) {
+			timestamp = (timestamp + Config.getInt("VISUALIZATION_TIMESTAMP_OFFSET")) * 1000;
+		}
+
 		double timestampDouble = timestamp;
 
 		// check if new batch is before last one which means time slided
 		// backwards
 		if (timestamp < this.currentTimestamp) {
 			while (this.batchBuffer.size() > 0) {
-				if (this.batchBuffer.getLast().getTimestamp() <= b
-						.getTimestamp()) {
+				if (this.batchBuffer.getLast().getTimestamp() <= b.getTimestamp()) {
 					break;
 				} else {
 					this.batchBuffer.removeLast();
@@ -209,14 +211,11 @@ public class MetricVisualizer extends Visualizer {
 
 			// update values
 			for (String metric : b.getMetrics().getNames()) {
-				for (String value : b.getMetrics().get(metric).getValues()
-						.getNames()) {
+				for (String value : b.getMetrics().get(metric).getValues().getNames()) {
 					if (this.traces.containsKey(metric + "." + value)) {
 						String tempName = metric + "." + value;
-						double tempValue = b.getMetrics().get(metric)
-								.getValues().get(value).getValue();
-						this.traces.get(tempName).addPoint(
-								timestampDouble + offsetX, tempValue);
+						double tempValue = b.getMetrics().get(metric).getValues().get(value).getValue();
+						this.traces.get(tempName).addPoint(timestampDouble + offsetX, tempValue);
 						offsetX += this.xAxisOffset;
 						this.legend.updateItem(tempName, tempValue);
 					}
@@ -224,84 +223,43 @@ public class MetricVisualizer extends Visualizer {
 			}
 			// update general runtimes
 			for (String runtime : b.getGeneralRuntimes().getNames()) {
-				if (this.traces
-						.containsKey(MetricVisualizer.generalRuntimesPrefix
-								+ runtime)) {
-					String tempName = MetricVisualizer.generalRuntimesPrefix
-							+ runtime;
-					double tempValue = b.getGeneralRuntimes().get(runtime)
-							.getRuntime();
-					this.traces.get(tempName).addPoint(
-							timestampDouble + offsetX, tempValue);
+				if (this.traces.containsKey(MetricVisualizer.generalRuntimesPrefix + runtime)) {
+					String tempName = MetricVisualizer.generalRuntimesPrefix + runtime;
+					double tempValue = b.getGeneralRuntimes().get(runtime).getRuntime();
+					this.traces.get(tempName).addPoint(timestampDouble + offsetX, tempValue);
 					offsetX += this.xAxisOffset;
 					this.legend.updateItem(tempName, tempValue);
 				}
 			}
 			// update metric runtimes
 			for (String runtime : b.getMetricRuntimes().getNames()) {
-				if (this.traces
-						.containsKey(MetricVisualizer.metricRuntimesPrefix
-								+ runtime)) {
-					String tempName = MetricVisualizer.metricRuntimesPrefix
-							+ runtime;
-					double tempValue = b.getMetricRuntimes().get(runtime)
-							.getRuntime();
+				if (this.traces.containsKey(MetricVisualizer.metricRuntimesPrefix + runtime)) {
+					String tempName = MetricVisualizer.metricRuntimesPrefix + runtime;
+					double tempValue = b.getMetricRuntimes().get(runtime).getRuntime();
 
-					this.traces.get(tempName).addPoint(
-							timestampDouble + offsetX, tempValue);
+					this.traces.get(tempName).addPoint(timestampDouble + offsetX, tempValue);
 					offsetX += this.xAxisOffset;
 					this.legend.updateItem(tempName, tempValue);
 				}
 			}
 			// update statistics
 			for (String value : b.getValues().getNames()) {
-				if (this.traces.containsKey(MetricVisualizer.statisticsPrefix
-						+ value)) {
+				if (this.traces.containsKey(MetricVisualizer.statisticsPrefix + value)) {
 					String tempName = MetricVisualizer.statisticsPrefix + value;
 					double tempValue = b.getValues().get(value).getValue();
 
-					this.traces.get(tempName).addPoint(
-							timestampDouble + offsetX, tempValue);
+					this.traces.get(tempName).addPoint(timestampDouble + offsetX, tempValue);
 					offsetX += this.xAxisOffset;
 					this.legend.updateItem(tempName, tempValue);
 				}
 			}
-			// timestamp adjustmens for x-axis tick calculation
-			if (config.isTraceModeLtd() && !this.FIXED_VIEWPORT) {
-				this.maxShownTimestamp = this.maxTimestamp;
-				if (this.maxShownTimestamp - this.TRACE_LENGTH > 0)
-					this.minShownTimestamp = this.maxShownTimestamp
-							- this.TRACE_LENGTH;
-				else
-					this.minShownTimestamp = 0;
-				this.xAxis1.setRange(new Range(this.minShownTimestamp,
-						this.maxShownTimestamp));
+
+			if (this.FIXED_VIEWPORT) {
+				this.setXAxis1RangeByIntervalSelection();
 			} else {
-				if (this.FIXED_VIEWPORT) {
-					double lowP = 1.0 * this.menuBar.getIntervalSlider()
-							.getValue() / 100;
-					double highP = 1.0 * (this.menuBar.getIntervalSlider()
-							.getValue() + this.menuBar.getIntervalSlider()
-							.getModel().getExtent()) / 100;
-					double minD = 0;
-					double maxD = 0;
-
-					for (String s : this.traces.keySet()) {
-						minD = this.traces.get(s).getMinX();
-						maxD = this.traces.get(s).getMaxX();
-						if (this.traces.get(s).getMinX() < this.minTimestamp)
-							minD = this.traces.get(s).getMinX();
-						if (this.traces.get(s).getMaxX() > this.maxTimestamp)
-							maxD = this.traces.get(s).getMaxX();
-					}
-					double tMinNew = minD + (lowP * (maxD - minD));
-					double tMaxNew = minD + (highP * (maxD - minD));
-
-					this.xAxis1.setRange(new Range(tMinNew, tMaxNew));
-					this.setMinShownTimestamp((long) tMinNew);
-					this.setMaxShownTimestamp((long) tMaxNew);
-				}
+				this.xAxis1.setRange(new Range(minTimestamp, maxTimestamp));
 			}
+
 			// update chart axis ticks
 			this.updateTicks();
 		}
@@ -347,20 +305,21 @@ public class MetricVisualizer extends Visualizer {
 
 	/** updates only one specific trace **/
 	private void updateTrace(BatchData b, String name) {
-
 		long timestamp = b.getTimestamp();
 		double timestampDouble = timestamp;
+
+		if (Config.getBoolean("VISUALIZATION_TIMESTAMP_AS_SECOND")) {
+			timestampDouble = (timestampDouble + Config.getInt("VISUALIZATION_TIMESTAMP_OFFSET")) * 1000;
+		}
+
 		// update values
 		for (String metric : b.getMetrics().getNames()) {
-			for (String value : b.getMetrics().get(metric).getValues()
-					.getNames()) {
+			for (String value : b.getMetrics().get(metric).getValues().getNames()) {
 				if (this.traces.containsKey(metric + "." + value)) {
 					String tempName = metric + "." + value;
 					if (tempName.equals(name)) {
-						double tempValue = b.getMetrics().get(metric)
-								.getValues().get(value).getValue();
-						this.traces.get(tempName).addPoint(timestampDouble,
-								tempValue);
+						double tempValue = b.getMetrics().get(metric).getValues().get(value).getValue();
+						this.traces.get(tempName).addPoint(timestampDouble, tempValue);
 						this.legend.updateItem(tempName, tempValue);
 					}
 				}
@@ -368,43 +327,33 @@ public class MetricVisualizer extends Visualizer {
 		}
 		// update general runtimes
 		for (String runtime : b.getGeneralRuntimes().getNames()) {
-			if (this.traces.containsKey(MetricVisualizer.generalRuntimesPrefix
-					+ runtime)) {
-				String tempName = MetricVisualizer.generalRuntimesPrefix
-						+ runtime;
+			if (this.traces.containsKey(MetricVisualizer.generalRuntimesPrefix + runtime)) {
+				String tempName = MetricVisualizer.generalRuntimesPrefix + runtime;
 				if (tempName.equals(name)) {
-					double tempValue = b.getGeneralRuntimes().get(runtime)
-							.getRuntime();
-					this.traces.get(tempName).addPoint(timestampDouble,
-							tempValue);
+					double tempValue = b.getGeneralRuntimes().get(runtime).getRuntime();
+					this.traces.get(tempName).addPoint(timestampDouble, tempValue);
 					this.legend.updateItem(tempName, tempValue);
 				}
 			}
 		}
 		// update metric runtimes
 		for (String runtime : b.getMetricRuntimes().getNames()) {
-			if (this.traces.containsKey(MetricVisualizer.metricRuntimesPrefix
-					+ runtime)) {
-				String tempName = MetricVisualizer.metricRuntimesPrefix
-						+ runtime;
-				double tempValue = b.getMetricRuntimes().get(runtime)
-						.getRuntime();
+			if (this.traces.containsKey(MetricVisualizer.metricRuntimesPrefix + runtime)) {
+				String tempName = MetricVisualizer.metricRuntimesPrefix + runtime;
+				double tempValue = b.getMetricRuntimes().get(runtime).getRuntime();
 				if (tempName.equals(name)) {
-					this.traces.get(tempName).addPoint(timestampDouble,
-							tempValue);
+					this.traces.get(tempName).addPoint(timestampDouble, tempValue);
 					this.legend.updateItem(tempName, tempValue);
 				}
 			}
 		}
 		// update statistics
 		for (String value : b.getValues().getNames()) {
-			if (this.traces.containsKey(MetricVisualizer.statisticsPrefix
-					+ value)) {
+			if (this.traces.containsKey(MetricVisualizer.statisticsPrefix + value)) {
 				String tempName = MetricVisualizer.statisticsPrefix + value;
 				if (tempName.equals(name)) {
 					double tempValue = b.getValues().get(value).getValue();
-					this.traces.get(tempName).addPoint(timestampDouble,
-							tempValue);
+					this.traces.get(tempName).addPoint(timestampDouble, tempValue);
 					this.legend.updateItem(tempName, tempValue);
 				}
 			}
@@ -420,8 +369,7 @@ public class MetricVisualizer extends Visualizer {
 				this.traces.put(name, newTrace);
 				this.chart.addTrace(newTrace);
 				if (config.isPaintLinesPoint())
-					newTrace.addTracePainter(new TracePainterDisc(config
-							.getLinesPointSize()));
+					newTrace.addTracePainter(new TracePainterDisc(config.getLinesPointSize()));
 				if (config.isPaintFill())
 					newTrace.addTracePainter(new TracePainterFill(this.chart));
 			} else {
@@ -431,8 +379,7 @@ public class MetricVisualizer extends Visualizer {
 				this.chart.addTrace(newTrace);
 
 				if (config.isPaintLinesPoint())
-					newTrace.addTracePainter(new TracePainterDisc(config
-							.getLinesPointSize()));
+					newTrace.addTracePainter(new TracePainterDisc(config.getLinesPointSize()));
 				if (config.isPaintFill())
 					newTrace.addTracePainter(new TracePainterFill(this.chart));
 			}
@@ -453,16 +400,13 @@ public class MetricVisualizer extends Visualizer {
 						if (painter instanceof TracePainterPolyline)
 							newTrace.removeTracePainter(painter);
 					}
-					newTrace.addTracePainter(new TracePainterVerticalBar(config
-							.getVerticalBarSize(), this.chart));
+					newTrace.addTracePainter(new TracePainterVerticalBar(config.getVerticalBarSize(), this.chart));
 				} else {
 					if (config.isPaintLinesPoint())
-						newTrace.addTracePainter(new TracePainterDisc(config
-								.getLinesPointSize()));
+						newTrace.addTracePainter(new TracePainterDisc(config.getLinesPointSize()));
 
 					if (config.isPaintFill())
-						newTrace.addTracePainter(new TracePainterFill(
-								this.chart));
+						newTrace.addTracePainter(new TracePainterFill(this.chart));
 				}
 			} else {
 				Trace2DSimple newTrace = new Trace2DSimple();
@@ -471,8 +415,7 @@ public class MetricVisualizer extends Visualizer {
 				this.chart.addTrace(newTrace);
 
 				if (config.isPaintLinesPoint())
-					newTrace.addTracePainter(new TracePainterDisc(config
-							.getLinesPointSize()));
+					newTrace.addTracePainter(new TracePainterDisc(config.getLinesPointSize()));
 				if (config.isPaintFill())
 					newTrace.addTracePainter(new TracePainterFill(this.chart));
 			}
@@ -481,13 +424,19 @@ public class MetricVisualizer extends Visualizer {
 
 	/** initializes the data with the first batch **/
 	public void initData(BatchData b) {
+		long timestamp = b.getTimestamp();
+
+		if (Config.getBoolean("VISUALIZATION_TIMESTAMP_AS_SECOND")) {
+			timestamp = (timestamp + Config.getInt("VISUALIZATION_TIMESTAMP_OFFSET")) * 1000;
+		}
+
 		this.initBatch = b;
-		this.minTimestamp = b.getTimestamp();
-		this.maxTimestamp = b.getTimestamp();
-		this.minShownTimestamp = b.getTimestamp();
+		this.minTimestamp = timestamp;
+		this.maxTimestamp = timestamp;
+		this.minShownTimestamp = timestamp;
 		this.maxShownTimestamp = this.minShownTimestamp;
 
-		this.currentTimestamp = b.getTimestamp();
+		this.currentTimestamp = timestamp;
 
 		// clear chart
 		for (ITrace2D t : this.chart.getTraces()) {
@@ -496,8 +445,7 @@ public class MetricVisualizer extends Visualizer {
 
 		// gather all available values
 		for (String metric : b.getMetrics().getNames()) {
-			for (String value : b.getMetrics().get(metric).getValues()
-					.getNames()) {
+			for (String value : b.getMetrics().get(metric).getValues().getNames()) {
 				this.availableValues.add(metric + "." + value);
 			}
 		}
@@ -505,13 +453,11 @@ public class MetricVisualizer extends Visualizer {
 			// graphGeneration runtime will be ignored cause it is only present
 			// in the initial batch
 			if (!runtime.equals("graphGeneration")) {
-				this.availableValues.add(MetricVisualizer.generalRuntimesPrefix
-						+ runtime);
+				this.availableValues.add(MetricVisualizer.generalRuntimesPrefix + runtime);
 			}
 		}
 		for (String runtime : b.getMetricRuntimes().getNames()) {
-			this.availableValues.add(MetricVisualizer.metricRuntimesPrefix
-					+ runtime);
+			this.availableValues.add(MetricVisualizer.metricRuntimesPrefix + runtime);
 		}
 		for (String value : b.getValues().getNames()) {
 			this.availableValues.add(MetricVisualizer.statisticsPrefix + value);
@@ -563,12 +509,10 @@ public class MetricVisualizer extends Visualizer {
 					verticalBar = true;
 			}
 			if (verticalBar) {
-				trace.setTracePainter(new TracePainterDisc(config
-						.getLinesPointSize()));
+				trace.setTracePainter(new TracePainterDisc(config.getLinesPointSize()));
 				trace.addTracePainter(new TracePainterLine());
 			} else {
-				trace.setTracePainter(new TracePainterVerticalBar(config
-						.getVerticalBarSize(), this.chart));
+				trace.setTracePainter(new TracePainterVerticalBar(config.getVerticalBarSize(), this.chart));
 			}
 		}
 	}
@@ -678,8 +622,7 @@ public class MetricVisualizer extends Visualizer {
 		// add single configs to lists
 		for (ConfigItem c : config.getEntries()) {
 			if (c instanceof MetricVisualizerItem) {
-				if (this.availableValues.contains(c.getName())
-						&& c.getOrderId() >= -1) {
+				if (this.availableValues.contains(c.getName()) && c.getOrderId() >= -1) {
 					configsList.add((MetricVisualizerItem) c);
 				}
 			}
@@ -689,21 +632,18 @@ public class MetricVisualizer extends Visualizer {
 		MetricVisualizer.addGeneralConfigs(configsList, config);
 
 		// craft names list to use as a blacklist for general configs later
-		ArrayList<String> configsNamesList = new ArrayList<String>(
-				configsList.size());
+		ArrayList<String> configsNamesList = new ArrayList<String>(configsList.size());
 		for (MetricVisualizerItem c : configsList)
 			configsNamesList.add(c.getName());
 
 		// convert list to array
-		MetricVisualizerItem[] configsArray = configsList
-				.toArray(new MetricVisualizerItem[configsList.size()]);
+		MetricVisualizerItem[] configsArray = configsList.toArray(new MetricVisualizerItem[configsList.size()]);
 
 		// sort array with insertion sort
 		for (int i = 1; i < configsArray.length; i++) {
 			MetricVisualizerItem single = configsArray[i];
 			int j = i;
-			while (j > 0
-					&& configsArray[j - 1].getOrderId() > single.getOrderId()) {
+			while (j > 0 && configsArray[j - 1].getOrderId() > single.getOrderId()) {
 				configsArray[j] = configsArray[j - 1];
 				j--;
 			}
@@ -715,20 +655,16 @@ public class MetricVisualizer extends Visualizer {
 
 		// calculate "breakpoint" in sorted list: where does -1 end?
 		int breakpoint = 0;
-		for (int i = 0; i < configsArray.length
-				&& configsArray[i].getOrderId() < 0; i++)
+		for (int i = 0; i < configsArray.length && configsArray[i].getOrderId() < 0; i++)
 			breakpoint = i + 1;
 
 		// first insert items with id > -1, then those with -1
-		this.insertForId(breakpoint, configsArray.length, b, configsNamesList,
-				configsArray, config);
-		this.insertForId(0, breakpoint, b, configsNamesList, configsArray,
-				config);
+		this.insertForId(breakpoint, configsArray.length, b, configsNamesList, configsArray, config);
+		this.insertForId(0, breakpoint, b, configsNamesList, configsArray, config);
 	}
 
 	/** Inserts items from the configs array to the legend. **/
-	private void insertForId(int from, int to, BatchData b,
-			ArrayList<String> configsNamesList,
+	private void insertForId(int from, int to, BatchData b, ArrayList<String> configsNamesList,
 			MetricVisualizerItem[] configsArray, VisualizerListConfig config) {
 		for (int i = from; i < to; i++) {
 			MetricVisualizerItem item = configsArray[i];
@@ -760,90 +696,89 @@ public class MetricVisualizer extends Visualizer {
 	}
 
 	/** Adds all set general configs to the list. **/
-	private static void addGeneralConfigs(
-			ArrayList<MetricVisualizerItem> configs, VisualizerListConfig config) {
+	private static void addGeneralConfigs(ArrayList<MetricVisualizerItem> configs, VisualizerListConfig config) {
 		if (config.isAnyGeneralConfigSet()) {
-			if (config.getAllGeneralRuntimesConfig() != null
-					&& config.getAllGeneralRuntimesConfig().getOrderId() >= -1)
+			if (config.getAllGeneralRuntimesConfig() != null && config.getAllGeneralRuntimesConfig().getOrderId() >= -1)
 				configs.add(config.getAllGeneralRuntimesConfig());
 
-			if (config.getAllMetricRuntimesConfig() != null
-					&& config.getAllMetricRuntimesConfig().getOrderId() >= -1)
+			if (config.getAllMetricRuntimesConfig() != null && config.getAllMetricRuntimesConfig().getOrderId() >= -1)
 				configs.add(config.getAllMetricRuntimesConfig());
 
-			if (config.getAllStatisticsConfig() != null
-					&& config.getAllStatisticsConfig().getOrderId() >= -1)
+			if (config.getAllStatisticsConfig() != null && config.getAllStatisticsConfig().getOrderId() >= -1)
 				configs.add(config.getAllStatisticsConfig());
 
-			if (config.getAllMetricsConfig() != null
-					&& config.getAllMetricsConfig().getOrderId() >= -1)
+			if (config.getAllMetricsConfig() != null && config.getAllMetricsConfig().getOrderId() >= -1)
 				configs.add(config.getAllMetricsConfig());
 		}
 	}
 
 	/** Insert all available metric runtimes. **/
-	private void insertMetricRuntimes(BatchData b, VisualizerListConfig config,
-			ArrayList<String> blackList) {
+	private void insertMetricRuntimes(BatchData b, VisualizerListConfig config, ArrayList<String> blackList) {
 		// insert all available metric runtimes
 		for (String runtime : b.getMetricRuntimes().getNames()) {
-			if (!blackList.contains(MetricVisualizer.metricRuntimesPrefix
-					+ runtime)) {
+			if (!blackList.contains(MetricVisualizer.metricRuntimesPrefix + runtime)) {
 				MetricVisualizerItem c = config.getAllMetricRuntimesConfig();
-				this.legend.addValueItemToList(new MetricVisualizerItem(
-						MetricVisualizer.metricRuntimesPrefix + runtime, c
-								.getDisplayMode(), c.getYAxis(), c
-								.getVisibility()));
+				this.legend.addValueItemToList(new MetricVisualizerItem(MetricVisualizer.metricRuntimesPrefix + runtime,
+						c.getDisplayMode(), c.getYAxis(), c.getVisibility()));
 			}
 		}
 	}
 
 	/** Insert all available general runtimes. **/
-	private void insertGeneralRuntimes(BatchData b,
-			VisualizerListConfig config, ArrayList<String> blackList) {
+	private void insertGeneralRuntimes(BatchData b, VisualizerListConfig config, ArrayList<String> blackList) {
 		for (String runtime : b.getGeneralRuntimes().getNames()) {
 			// graphGeneration runtime will be ignored cause it is only present
 			// in the initial batch
 			if (!runtime.equals("graphGeneration")
-					&& !blackList
-							.contains(MetricVisualizer.generalRuntimesPrefix
-									+ runtime)) {
+					&& !blackList.contains(MetricVisualizer.generalRuntimesPrefix + runtime)) {
 				MetricVisualizerItem c = config.getAllGeneralRuntimesConfig();
-				this.legend.addValueItemToList(new MetricVisualizerItem(
-						MetricVisualizer.generalRuntimesPrefix + runtime, c
-								.getDisplayMode(), c.getYAxis(), c
-								.getVisibility()));
+				this.legend
+						.addValueItemToList(new MetricVisualizerItem(MetricVisualizer.generalRuntimesPrefix + runtime,
+								c.getDisplayMode(), c.getYAxis(), c.getVisibility()));
 			}
 		}
 	}
 
 	/** Insert all available statistics. **/
-	private void insertStatistics(BatchData b, VisualizerListConfig config,
-			ArrayList<String> blackList) {
+	private void insertStatistics(BatchData b, VisualizerListConfig config, ArrayList<String> blackList) {
 		for (String value : b.getValues().getNames()) {
 			if (!blackList.contains(MetricVisualizer.statisticsPrefix + value)) {
 				MetricVisualizerItem c = config.getAllStatisticsConfig();
-				this.legend.addValueItemToList(new MetricVisualizerItem(
-						MetricVisualizer.statisticsPrefix + value, c
-								.getDisplayMode(), c.getYAxis(), c
-								.getVisibility()));
+				this.legend.addValueItemToList(new MetricVisualizerItem(MetricVisualizer.statisticsPrefix + value,
+						c.getDisplayMode(), c.getYAxis(), c.getVisibility()));
 			}
 		}
 	}
 
 	/** Insert all available metrics. **/
-	private void insertMetrics(BatchData b, VisualizerListConfig config,
-			ArrayList<String> blackList) {
+	private void insertMetrics(BatchData b, VisualizerListConfig config, ArrayList<String> blackList) {
 		for (String metric : b.getMetrics().getNames()) {
-			for (String value : b.getMetrics().get(metric).getValues()
-					.getNames()) {
+			for (String value : b.getMetrics().get(metric).getValues().getNames()) {
 				if (!blackList.contains(metric + "." + value)) {
 					MetricVisualizerItem c = config.getAllMetricsConfig();
-					this.legend.addValueItemToList(new MetricVisualizerItem(
-							metric + "." + value, c.getDisplayMode(), c
-									.getYAxis(), c.getVisibility()));
+					this.legend.addValueItemToList(new MetricVisualizerItem(metric + "." + value, c.getDisplayMode(),
+							c.getYAxis(), c.getVisibility()));
 				}
 			}
 		}
+	}
+
+	@Override
+	public void broadcastX1IntervalSizeSliderChange(int value) {
+		if (this.isX1Connected())
+			this.mainDisplay.broadcastX1SizeSliderChange(this, value);
+	}
+
+	@Override
+	public void broadcastX1IntervalScrollBarChange(int value) {
+		if (this.isX1Connected())
+			this.mainDisplay.broadcastX1IntervalScrollBarChange(this, value);
+	}
+
+	@Override
+	public void broadcastX1IntervalEnabled(boolean enabled) {
+		if (this.isX1Connected())
+			this.mainDisplay.broadcastX1IntervalEnabled(this, enabled);
 	}
 
 }

@@ -26,7 +26,9 @@ import dna.util.Log;
 import dna.visualization.config.graph.GraphPanelConfig;
 import dna.visualization.graph.GraphPanel.PositionMode;
 
-/** The GraphVisualization class offers methods to visualize graphs used in DNA. **/
+/**
+ * The GraphVisualization class offers methods to visualize graphs used in DNA.
+ **/
 public class GraphVisualization {
 	// statics
 	public static final String positionKey = "xyz";
@@ -39,6 +41,7 @@ public class GraphVisualization {
 	public static final String colorKey = "dna.color";
 	public static final String sizeKey = "dna.size";
 	public static final String shapeKey = "dna.shape";
+	public static final String styleLockKey = "dna.style.lock";
 	public static final String styleKey = "ui.style";
 	public static final String updateKey = "dna.update";
 	public static final String zKey = "dna.z";
@@ -58,8 +61,7 @@ public class GraphVisualization {
 	public static void init(Graph g) {
 		if (!init) {
 			// init sophisticated renderer
-			System.setProperty("org.graphstream.ui.renderer",
-					"org.graphstream.ui.j2dviewer.J2DGraphRenderer");
+			System.setProperty("org.graphstream.ui.renderer", "org.graphstream.ui.j2dviewer.J2DGraphRenderer");
 			init = true;
 		}
 
@@ -78,17 +80,12 @@ public class GraphVisualization {
 
 		// check nodeweighttypes for position modes
 		PositionMode mode = PositionMode.auto;
-		Class<? extends Weight> nwt = g.getGraphDatastructures()
-				.getNodeWeightType();
-		if (nwt != null
-				&& (nwt.equals(Int2dWeight.class)
-						|| nwt.equals(Long2dWeight.class) || nwt
-							.equals(Double2dWeight.class)))
+		Class<? extends Weight> nwt = g.getGraphDatastructures().getNodeWeightType();
+		if (nwt != null && (nwt.equals(Int2dWeight.class) || nwt.equals(Long2dWeight.class)
+				|| nwt.equals(Double2dWeight.class)))
 			mode = PositionMode.twoDimension;
-		if (nwt != null
-				&& (nwt.equals(Int3dWeight.class)
-						|| nwt.equals(Long3dWeight.class) || nwt
-							.equals(Double3dWeight.class)))
+		if (nwt != null && (nwt.equals(Int3dWeight.class) || nwt.equals(Long3dWeight.class)
+				|| nwt.equals(Double3dWeight.class)))
 			mode = PositionMode.threeDimension;
 
 		// main frame
@@ -105,8 +102,7 @@ public class GraphVisualization {
 			cfg = GraphPanelConfig.defaultGraphPanelConfig;
 
 		// init graph panel
-		GraphPanel panel = new GraphPanel(mainFrame, graph, name, name, mode,
-				cfg);
+		GraphPanel panel = new GraphPanel(mainFrame, graph, name, name, mode, cfg);
 
 		// rendering options
 		if (cfg.isRenderHQ())
@@ -123,8 +119,7 @@ public class GraphVisualization {
 		mainFrame.setLocationRelativeTo(null);
 
 		if (cfg.isFullscreen()) {
-			mainFrame.setExtendedState(mainFrame.getExtendedState()
-					| JFrame.MAXIMIZED_BOTH);
+			mainFrame.setExtendedState(mainFrame.getExtendedState() | JFrame.MAXIMIZED_BOTH);
 		}
 
 		// set visible

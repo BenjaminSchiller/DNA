@@ -726,4 +726,12 @@ public class NetflowBatch extends NetworkBatch {
 
 		return "unknown";
 	}
+	
+	public void setMap(HashMap<String, Integer> map) {
+		this.map = map;
+	}
+	
+	public HashMap<String, Integer> getMap() {
+		return this.map;
+	}
 }

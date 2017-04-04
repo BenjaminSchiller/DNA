@@ -1,5 +1,15 @@
 package dna.visualization.components.visualizer;
 
+import java.awt.Dimension;
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
+import java.text.DecimalFormat;
+import java.text.NumberFormat;
+
+import javax.swing.JPanel;
+
+import dna.visualization.MainDisplay;
+import dna.visualization.config.components.MenuBarConfig;
 import info.monitorenter.gui.chart.Chart2D;
 import info.monitorenter.gui.chart.IAxis;
 import info.monitorenter.gui.chart.IAxis.AxisTitle;
@@ -11,17 +21,7 @@ import info.monitorenter.gui.chart.rangepolicies.RangePolicyFixedViewport;
 import info.monitorenter.gui.chart.rangepolicies.RangePolicyUnbounded;
 import info.monitorenter.gui.chart.traces.Trace2DLtd;
 import info.monitorenter.gui.chart.traces.Trace2DSimple;
-
-import java.awt.Dimension;
-import java.awt.GridBagConstraints;
-import java.awt.GridBagLayout;
-import java.text.DecimalFormat;
-import java.text.NumberFormat;
-
-import javax.swing.JPanel;
-
-import dna.visualization.MainDisplay;
-import dna.visualization.config.components.MenuBarConfig;
+import info.monitorenter.util.Range;
 
 @SuppressWarnings("serial")
 public class Visualizer extends JPanel {
@@ -58,6 +58,9 @@ public class Visualizer extends JPanel {
 	// shows if the visualizer is locked or not
 	protected boolean locked;
 
+	// if true the x1 axis interval selections are shared with other components
+	protected boolean x1Connected;
+
 	// constructor
 	@SuppressWarnings("rawtypes")
 	public Visualizer(Dimension chartSize, Dimension legendSize) {
@@ -65,8 +68,7 @@ public class Visualizer extends JPanel {
 		// this.setPreferredSize(GuiOptions.visualizerDefaultSize);
 		this.paused = true;
 
-		this.TRACE_LENGTH = MainDisplay.DefaultConfig
-				.getMetricVisualizerConfigs()[0].getTraceLength();
+		this.TRACE_LENGTH = MainDisplay.DefaultConfig.getMetricVisualizerConfigs()[0].getTraceLength();
 		this.FIXED_VIEWPORT = false;
 		this.minTimestamp = 0;
 		this.maxTimestamp = 0;
@@ -82,6 +84,8 @@ public class Visualizer extends JPanel {
 		// init chart
 		this.chart = new Chart2D();
 		this.chart.setPreferredSize(chartSize);
+		// TODO: add anti alias to config
+		// this.chart.setUseAntialiasing(true);
 
 		/*
 		 * axis configuration
@@ -93,8 +97,7 @@ public class Visualizer extends JPanel {
 		// y1
 		this.yAxis1 = this.chart.getAxisY();
 		this.yAxis1.setAxisTitle(new AxisTitle("y1"));
-		this.yAxis1.setFormatter(new LabelFormatterNumber(new DecimalFormat(
-				"0.0")));
+		this.yAxis1.setFormatter(new LabelFormatterNumber(new DecimalFormat("0.0")));
 
 		// x2
 		this.xAxis2 = new AxisLinear();
@@ -102,8 +105,7 @@ public class Visualizer extends JPanel {
 		this.chart.addAxisXBottom((AAxis) this.xAxis2);
 
 		// y2
-		this.yAxis2 = new AxisLinear(new LabelFormatterNumber(
-				new DecimalFormat("0.0")));
+		this.yAxis2 = new AxisLinear(new LabelFormatterNumber(new DecimalFormat("0.0")));
 		this.yAxis2 = new AxisLinear();
 		this.yAxis2.setVisible(false);
 		this.yAxis2.setAxisTitle(new AxisTitle("y2"));
@@ -133,14 +135,13 @@ public class Visualizer extends JPanel {
 		this.xAxis2.setAxisScalePolicy(manualTickScalePolicy);
 	}
 
-	protected void addMenuBar(Dimension size, boolean addCoordsPanel,
-			boolean addIntervalPanel, boolean addXOptionsPanel,
-			boolean addYLeftOptionsPanel) {
+	protected void addMenuBar(Dimension size, boolean addCoordsPanel, boolean addIntervalPanel,
+			boolean addXOptionsPanel, boolean addYLeftOptionsPanel) {
 		this.mainConstraints.gridx = 0;
 		this.mainConstraints.gridy = 1;
 		this.mainConstraints.gridwidth = 2;
-		this.menuBar = new MenuBar(this, size, addCoordsPanel,
-				addIntervalPanel, addXOptionsPanel, addYLeftOptionsPanel);
+		this.menuBar = new MenuBar(this, size, addCoordsPanel, addIntervalPanel, addXOptionsPanel,
+				addYLeftOptionsPanel);
 		this.add(this.menuBar, this.mainConstraints);
 	}
 
@@ -387,6 +388,27 @@ public class Visualizer extends JPanel {
 		this.FIXED_VIEWPORT = isViewportFixed;
 	}
 
+	public void resetXAxis1Range() {
+		this.setXAxis1Range(this.minTimestamp, this.maxTimestamp);
+	}
+
+	public void setXAxis1Range(long min, long max) {
+		this.xAxis1.setRange(new Range(min, max));
+	}
+
+	public void setXAxis1RangeByIntervalSelection() {
+		this.setXAxis1RangePercent(this.menuBar.getIntervalSliderSelectionLowPercent(),
+				this.menuBar.getIntervalSliderSelectionHighPercent());
+	}
+
+	public void setXAxis1RangePercent(double lowPercent, double highPercent) {
+		long coveredArea = maxTimestamp - minTimestamp;
+		long tMinNew = minTimestamp + (long) Math.floor(lowPercent * (coveredArea));
+		long tMaxNew = minTimestamp + (long) Math.floor(highPercent * (coveredArea));
+
+		this.xAxis1.setRange(new Range(tMinNew, tMaxNew));
+	}
+
 	public boolean isViewPortFixed() {
 		return this.FIXED_VIEWPORT;
 	}
@@ -463,7 +485,9 @@ public class Visualizer extends JPanel {
 		this.locked = locked;
 	}
 
-	/** Called when the visualizer gets locked by the main lock in maindisplay. **/
+	/**
+	 * Called when the visualizer gets locked by the main lock in maindisplay.
+	 **/
 	public void setLockedByMainDisplay(boolean locked) {
 		this.legend.setLocked(locked);
 		this.locked = locked;
@@ -472,6 +496,69 @@ public class Visualizer extends JPanel {
 	/** Returns if the visualizer is locked. **/
 	public boolean isLocked() {
 		return this.locked;
+	}
+
+	/**
+	 * Broadcasts the x1 interval size slider changes. The visualizer method
+	 * does nothing as the visualizer does not know the main display and cant
+	 * forward the broadcast. Shall be overridden by visualizer implementations.
+	 **/
+	public void broadcastX1IntervalSizeSliderChange(int value) {
+		// do nothing here
+	}
+
+	/**
+	 * Broadcasts the x1 interval scroll bar changes. The visualizer method does
+	 * nothing as the visualizer does not know the main display and cant forward
+	 * the broadcast. Shall be overridden by visualizer implementations.
+	 **/
+	public void broadcastX1IntervalScrollBarChange(int value) {
+		// do nothing here
+	}
+
+	/**
+	 * Broadcasts the x1 interval checkbox changes. The visualizer method does
+	 * nothing as the visualizer does not know the main display and cant forward
+	 * the broadcast. Shall be overridden by visualizer implementations.
+	 **/
+	public void broadcastX1IntervalEnabled(boolean enabled) {
+		// do nothing here
+	}
+
+	/** Sets the x1 interval size slider. **/
+	public void setX1IntervalSizeSlider(int value) {
+		if (this.isX1Connected())
+			this.menuBar.setX1IntervalSizeSlider(value);
+	}
+
+	/** Sets the x1 interval scrollbar. **/
+	public void setX1IntervalScrollBar(int value) {
+		if (this.isX1Connected())
+			this.menuBar.setX1IntervalScrollBar(value);
+	}
+
+	/** Sets if the interval checkbox is set and if alterations are enabled. **/
+	public void setX1IntervalEnabled(boolean enabled) {
+		if (this.isX1Connected())
+			this.menuBar.setX1IntervalEnabled(enabled);
+	}
+
+	/** Returns if this component is currently connected to shared x1 axis. **/
+	public boolean isX1Connected() {
+		return this.x1Connected;
+	}
+
+	/**
+	 * Sets if the component is connected or not. Called by menu-bar, dont call
+	 * manually! Changes will not be reflected by the menu-bar checkbox.
+	 **/
+	public void setX1Connected(boolean connected) {
+		this.x1Connected = connected;
+	}
+
+	/** Returns the chart. **/
+	public Chart2D getChart() {
+		return this.chart;
 	}
 
 }
